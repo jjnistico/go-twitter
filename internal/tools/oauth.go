@@ -34,7 +34,6 @@ func RequestToken(w http.ResponseWriter) (TokenResponse, error) {
 
 	token_req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", bearer_token))
 
-	///////////
 	client := &http.Client{}
 	resp, err := client.Do(token_req)
 
@@ -62,7 +61,6 @@ func Authorize(w http.ResponseWriter, token_response TokenResponse) {
 
 	query_params := url.Values{}
 	query_params.Set("oauth_token", token_response.Token)
-	// query_params.Set("force_login", "true")
 
 	auth_req, err := http.NewRequest(http.MethodGet, base_url+"oauth/authorize?"+query_params.Encode(), nil)
 

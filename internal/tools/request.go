@@ -8,12 +8,6 @@ import (
 	"os"
 )
 
-// This function is used to request data from any twitter v2 endpoint.
-// In order to use, pass the endpoint (anything after ../v2/ in the api url),
-// a method (most like GET) and an optional payload (if applicable)
-//
-// NOTE: This function returns an array of bytes which you must handle in your
-// api endpoint method in order to marshall to JSON
 func RequestData(endpoint string, method string, payload io.Reader) ([]byte, error) {
 	base_url := os.Getenv("BASE_URL")
 	bearer_token := os.Getenv("BEARER_TOKEN")
