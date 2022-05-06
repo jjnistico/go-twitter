@@ -8,7 +8,7 @@ type TokenResponse struct {
 	CallbackConfirmed bool
 }
 
-func ParseStringToStruct(str string) TokenResponse {
+func ParseTokenStringToStruct(str string) TokenResponse {
 	str_arr := strings.Split(str, "&")
 	var token_resp TokenResponse
 	for _, val := range str_arr {

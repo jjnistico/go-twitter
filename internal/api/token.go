@@ -24,5 +24,13 @@ func GetOAuthToken(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	fmt.Println(token_response)
+	authorize_resp, err := tools.Authorize(w, token_response)
+
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		fmt.Fprintf(w, "Error authorizing user for oauth (2): %s", err.Error())
+		return
+	}
+
+	w.Write(authorize_resp)
 }

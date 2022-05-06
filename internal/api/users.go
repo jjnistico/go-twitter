@@ -24,7 +24,7 @@ func GetUsersByUsername(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	data, err := tools.RequestData("2/users/by?usernames="+usernames, http.MethodGet, nil)
+	data, err := tools.RequestData("2/users/by", "usernames="+usernames, http.MethodGet, nil)
 
 	if err != nil {
 		fmt.Printf("Error getting users: %s", err)

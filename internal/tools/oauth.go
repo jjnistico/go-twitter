@@ -15,10 +15,8 @@ func RequestToken(w http.ResponseWriter) (TokenResponse, error) {
 	bearer_token := os.Getenv("BEARER_TOKEN")
 	auth_callback := os.Getenv("APP_CALLBACK")
 
-	// URL encode callback
-	encodedAuthCallback := url.PathEscape(auth_callback)
+	encodedAuthCallback := url.QueryEscape(auth_callback)
 
-	// Initial post request requires encoded url for auth callback and api key
 	query_params := url.Values{}
 	query_params.Set("oauth_callback", encodedAuthCallback)
 	query_params.Add("oauth_consumer_key", api_key)
@@ -46,7 +44,7 @@ func RequestToken(w http.ResponseWriter) (TokenResponse, error) {
 	defer resp.Body.Close()
 	body, _ := ioutil.ReadAll(resp.Body)
 
-	token_struct := ParseStringToStruct(string(body))
+	token_struct := ParseTokenStringToStruct(string(body))
 
 	if !token_struct.CallbackConfirmed {
 		return TokenResponse{}, errors.New("callback not confirmed")
@@ -55,7 +53,7 @@ func RequestToken(w http.ResponseWriter) (TokenResponse, error) {
 	return token_struct, nil
 }
 
-func Authorize(w http.ResponseWriter, token_response TokenResponse) {
+func Authorize(w http.ResponseWriter, token_response TokenResponse) ([]byte, error) {
 	base_url := os.Getenv("BASE_URL")
 	bearer_token := os.Getenv("BEARER_TOKEN")
 
@@ -66,9 +64,7 @@ func Authorize(w http.ResponseWriter, token_response TokenResponse) {
 
 	if err != nil {
 		fmt.Printf("Error authorizing with request token: %s", err)
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte("Error generating request to oauth/authorize"))
-		return
+		return nil, fmt.Errorf("error generating request to oauth/authorize: %s", err.Error())
 	}
 
 	auth_req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", bearer_token))
@@ -77,13 +73,11 @@ func Authorize(w http.ResponseWriter, token_response TokenResponse) {
 	resp, err := client.Do(auth_req)
 
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte("Error requesting first leg of oauth protocol"))
-		return
+		return nil, fmt.Errorf("error requesting first leg of oauth protocol: %s", err.Error())
 	}
 
 	defer resp.Body.Close()
 	body, _ := ioutil.ReadAll(resp.Body)
 
-	fmt.Println(string(body))
+	return body, nil
 }
