@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"gotwitter/internal/endpoint"
 	"gotwitter/internal/tools"
 )
 
@@ -23,12 +24,12 @@ func GetTweetsByIds(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	data, err := tools.RequestData("2/tweets/", "ids="+ids, http.MethodGet, nil)
+	data, err := tools.RequestData(endpoint.GetTweets, "ids="+ids, http.MethodGet, nil)
 
 	if err != nil {
-		fmt.Printf("Error getting tweets: %s", err)
+		fmt.Println(err)
 		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprint(w, err)
+		w.Write([]byte(err.Error()))
 		return
 	}
 

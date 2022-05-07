@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"gotwitter/internal/endpoint"
 	"gotwitter/internal/tools"
 )
 
@@ -24,10 +25,13 @@ func GetUsersByUsername(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	data, err := tools.RequestData("2/users/by", "usernames="+usernames, http.MethodGet, nil)
+	data, err := tools.RequestData(endpoint.GetUsers, "usernames="+usernames, http.MethodGet, nil)
 
 	if err != nil {
-		fmt.Printf("Error getting users: %s", err)
+		fmt.Println(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte(err.Error()))
+		return
 	}
 
 	fmt.Fprint(w, string(data))

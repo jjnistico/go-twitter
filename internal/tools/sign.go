@@ -50,7 +50,7 @@ func SignRequest(
 	}
 
 	// parameter string are fields joined by '&'. All key/values are percent encoded
-	var parameter_string = ""
+	parameter_string := ""
 	for idx, key := range signature_keys {
 		parameter_string += url.QueryEscape(key)
 		parameter_string += "="

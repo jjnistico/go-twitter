@@ -2,15 +2,15 @@ package tools
 
 import "strings"
 
-type TokenResponse struct {
+type RequestTokenResponse struct {
 	Token             string
 	Secret            string
 	CallbackConfirmed bool
 }
 
-func ParseTokenStringToStruct(str string) TokenResponse {
+func ParseRequestTokenStringToStruct(str string) RequestTokenResponse {
 	str_arr := strings.Split(str, "&")
-	var token_resp TokenResponse
+	var token_resp RequestTokenResponse
 	for _, val := range str_arr {
 		split_val := strings.Split(val, "=")
 		switch split_val[0] {
@@ -20,6 +20,32 @@ func ParseTokenStringToStruct(str string) TokenResponse {
 			token_resp.Secret = split_val[1]
 		case "oauth_callback_confirmed":
 			token_resp.CallbackConfirmed = bool(split_val[1] == "true")
+		}
+	}
+	return token_resp
+}
+
+type AccessTokenResponse struct {
+	OauthToken       string
+	OauthTokenSecret string
+	UserId           string
+	ScreenName       string
+}
+
+func ParseAccessTokenStringToStruct(str string) AccessTokenResponse {
+	str_arr := strings.Split(str, "&")
+	var token_resp AccessTokenResponse
+	for _, val := range str_arr {
+		split_val := strings.Split(val, "=")
+		switch split_val[0] {
+		case "oauth_token":
+			token_resp.OauthToken = split_val[1]
+		case "oauth_token_secret":
+			token_resp.OauthTokenSecret = split_val[1]
+		case "user_id":
+			token_resp.UserId = split_val[1]
+		case "screen_name":
+			token_resp.ScreenName = split_val[1]
 		}
 	}
 	return token_resp

@@ -16,19 +16,21 @@ import (
 // ACCESS_SECRET = oauth_secret                                          //
 // // // // // // // // // // // // // // // // // // // // // // // //  //
 func GetOAuthToken(w http.ResponseWriter, req *http.Request) {
-	token_response, err := tools.RequestToken(w)
+	token_response, err := tools.RequestToken()
 
 	if err != nil {
+		fmt.Println(err.Error())
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte(err.Error()))
 		return
 	}
 
-	authorize_resp, err := tools.Authorize(w, token_response)
+	authorize_resp, err := tools.Authorize(token_response.Token)
 
 	if err != nil {
+		fmt.Println(err.Error())
 		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprintf(w, "Error authorizing user for oauth (2): %s", err.Error())
+		w.Write([]byte(err.Error()))
 		return
 	}
 
