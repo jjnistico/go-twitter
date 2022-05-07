@@ -21,7 +21,7 @@ func GetUsersByUsername(w http.ResponseWriter, req *http.Request) {
 
 	if len(usernames) == 0 {
 		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte("Unable to parse query params, please key with `usernames`\n"))
+		w.Write([]byte("`usernames` query parameter not present or not populated"))
 		return
 	}
 

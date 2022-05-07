@@ -2,8 +2,8 @@ package tools
 
 import (
 	"crypto/hmac"
-	"crypto/sha256"
-	"encoding/hex"
+	"crypto/sha1"
+	b64 "encoding/base64"
 	"math/rand"
 )
 
@@ -16,7 +16,7 @@ const (
 func GenerateNonce(length int) string {
 	b := make([]byte, length)
 	for i := 0; i < length; {
-		if idx := int(rand.Int63() & letterIdxMask); idx < len(letterBytes) {
+		if idx := int(rand.Int31() & letterIdxMask); idx < len(letterBytes) {
 			b[i] = letterBytes[idx]
 			i++
 		}
@@ -25,8 +25,8 @@ func GenerateNonce(length int) string {
 }
 
 func HmacHash(data string, key string) string {
-	mac := hmac.New(sha256.New, []byte(key))
+	mac := hmac.New(sha1.New, []byte(key))
 	mac.Write([]byte(data))
-	hash := hex.EncodeToString(mac.Sum(nil))
+	hash := b64.StdEncoding.EncodeToString(mac.Sum(nil))
 	return hash
 }

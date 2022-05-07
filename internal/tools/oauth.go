@@ -10,13 +10,12 @@ import (
 	"os"
 )
 
+// see https://developer.twitter.com/en/docs/authentication/api-reference/request_token
 func RequestToken() (RequestTokenResponse, error) {
-	auth_callback := os.Getenv("APP_CALLBACK")
-
-	encodedAuthCallback := url.QueryEscape(auth_callback)
+	auth_callback := os.Getenv("AUTH_CALLBACK")
 
 	query_params := url.Values{}
-	query_params.Set("oauth_callback", encodedAuthCallback)
+	query_params.Set("oauth_callback", auth_callback)
 
 	token_req, err := http.NewRequest(http.MethodPost, endpoint.OauthRequestToken+"?"+query_params.Encode(), nil)
 
@@ -24,11 +23,15 @@ func RequestToken() (RequestTokenResponse, error) {
 		return RequestTokenResponse{}, fmt.Errorf("error generating request to oauth/request_token: %s", err.Error())
 	}
 
-	request_signature, err := SignRequest("", "", http.MethodPost, endpoint.OauthRequestToken, query_params.Encode())
-
-	if err != nil {
-		return RequestTokenResponse{}, fmt.Errorf("error generating request signature: %s", err.Error())
-	}
+	// oauth_token := os.Getenv("API_KEY")
+	// oauth_token_secret := os.Getenv("API_SECRET")
+	request_signature := GetRequestSignature(
+		"",
+		"",
+		http.MethodPost,
+		endpoint.OauthRequestToken,
+		query_params,
+	)
 
 	auth_header := BuildAuthorizationHeader("", request_signature)
 
@@ -83,7 +86,7 @@ func AccessToken(oauth_token string, oauth_verifier string) (AccessTokenResponse
 	query_params.Set("oauth_token", oauth_token)
 	query_params.Set("oauth_verifier", oauth_verifier)
 
-	access_token_req, err := http.NewRequest(http.MethodPost, endpoint.OauthAccessToken+"?"+query_params.Encode(), query_params.Encode(), nil)
+	access_token_req, err := http.NewRequest(http.MethodPost, endpoint.OauthAccessToken+"?"+query_params.Encode(), nil)
 
 	if err != nil {
 		return AccessTokenResponse{}, fmt.Errorf("error creating request for oauth/access_token: %s", err.Error())
