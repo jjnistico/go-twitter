@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
-	"time"
+	"strings"
 )
 
 func RequestData(api_url string, query_params string, method string, payload io.Reader) ([]byte, error) {
@@ -40,43 +40,21 @@ func RequestData(api_url string, query_params string, method string, payload io.
 	return data, nil
 }
 
-func BuildAuthorizationHeader(oauth_token string, signature string) string {
-	header_keys := []string{
-		"oauth_consumer_key",
-		"oauth_nonce",
-		"oauth_signature",
-		"oauth_signature_method",
-		"oauth_timestamp",
-		"oauth_token",
-		"oauth_version",
-	}
-
-	header_params := map[string]string{
-		"oauth_consumer_key":     os.Getenv("API_KEY"),
-		"oauth_nonce":            GenerateNonce(42),
-		"oauth_signature":        signature,
-		"oauth_signature_method": "HMAC-SHA1",
-		"oauth_timestamp":        fmt.Sprint(time.Now().Unix()),
-		"oauth_token":            url.QueryEscape(oauth_token),
-		"oauth_version":          "1.0",
-	}
-
+func BuildAuthorizationHeader(header_entries []map[string]string) string {
 	// header string is fields joined by ", ". All key/values are percent encoded
-	header_string := "OAuth "
-	for idx, key := range header_keys {
-		// may not have an oauth_token yet. In that case, skip empty values
-		if header_params[key] == "" {
-			continue
+	builder := strings.Builder{}
+	builder.WriteString("OAuth ")
+	for idx, entry := range header_entries {
+		for k, v := range entry {
+			if v == "" {
+				continue
+			}
+			builder.WriteString(fmt.Sprintf("%s=\"%s\"", PercentEncode(k), PercentEncode(v)))
 		}
-		header_string += url.QueryEscape(key)
-		header_string += "="
-		header_string += "\""
-		header_string += url.QueryEscape(header_params[key])
-		header_string += "\""
-		if idx < len(header_keys)-1 {
-			header_string += ", "
+		if idx < len(header_entries)-1 {
+			builder.WriteString(", ")
 		}
 	}
 
-	return header_string
+	return builder.String()
 }

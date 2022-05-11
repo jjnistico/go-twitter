@@ -5,7 +5,6 @@ import (
 	"net/url"
 	"os"
 	"strings"
-	"time"
 )
 
 // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // //
@@ -24,69 +23,38 @@ import (
 //                                                                                           //
 // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // //
 func GetRequestSignature(
-	oauth_token string,
-	oauth_token_secret string,
+	signature_params []map[string]string,
 	method string,
 	base_url string,
 	query_params url.Values,
 ) string {
-	// the order of keys is important and since maps are unordered in go, must provide an array
-	signature_keys := []string{
-		"include_entities",
-		"oauth_consumer_key",
-		"oauth_nonce",
-		"oauth_signature_method",
-		"oauth_timestamp",
-		"oauth_token",
-		"oauth_version",
-	}
-
-	signature_params := map[string]string{
-		"include_entities":       "true",
-		"oauth_consumer_key":     os.Getenv("API_KEY"),
-		"oauth_nonce":            GenerateNonce(42),
-		"oauth_signature_method": "HMAC-SHA1",
-		"oauth_timestamp":        fmt.Sprint(time.Now().Unix()),
-		"oauth_token":            url.QueryEscape(oauth_token),
-		"oauth_version":          "1.0",
-	}
-
-	// parameter string are fields joined by '&'. All key/values are percent encoded
 	builder := strings.Builder{}
-	for _, key := range signature_keys {
-		// if signature_params[key] == "" {
-		// 	continue
-		// }
-		builder.WriteString(fmt.Sprintf("%s=%s&", key, signature_params[key]))
+	// start with encoded query params
+	builder.WriteString(fmt.Sprintf("%s&", query_params.Encode()))
+	// append all signature params encoded
+	for idx, entry := range signature_params {
+		for k, v := range entry {
+			builder.WriteString(fmt.Sprintf("%s=%s", PercentEncode(k), PercentEncode(v)))
+		}
+		if idx < len(signature_params)-1 {
+			builder.WriteString("&")
+		}
 	}
-	// encode current string before appending query_params
-	encoded_base := url.QueryEscape(builder.String())
-
-	builder.Reset()
-
-	builder.WriteString(encoded_base)
-
-	// append encoded query params to end
-	builder.WriteString(query_params.Encode())
+	// parameter string for appending to method + url for signature base string
 	parameter_string := builder.String()
-
 	builder.Reset()
 
 	// signature base string is http method (to uppercase), percent encoded url and percent encoded parameter string
 	// concatenated with '&'
-	builder.WriteString(fmt.Sprintf("%s&%s&%s", method, url.QueryEscape(base_url), parameter_string))
-
+	builder.WriteString(fmt.Sprintf("%s&%s&%s", method, PercentEncode(base_url), PercentEncode(parameter_string)))
 	signature_base_string := builder.String()
 
-	fmt.Println(signature_base_string)
-	fmt.Println("========")
 	// the signing key is the concatenation of the consumer secret (API_SECRET) and the oauth_token_secret (&)
 	oauth_consumer_secret := os.Getenv("API_SECRET")
-	signing_key := url.QueryEscape(oauth_consumer_secret) + "&" + url.QueryEscape(oauth_token_secret)
+	oauth_token_secret := os.Getenv("ACCESS_TOKEN_SECRET")
+	signing_key := PercentEncode(oauth_consumer_secret) + "&" + PercentEncode(oauth_token_secret)
 
 	hash := HmacHash(signature_base_string, signing_key)
 
-	fmt.Println(hash)
-	fmt.Println("======")
 	return hash
 }

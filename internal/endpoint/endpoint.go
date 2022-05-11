@@ -5,5 +5,5 @@ const (
 	GetUsers          string = "https://api.twitter.com/2/users"
 	OauthRequestToken string = "https://api.twitter.com/oauth/request_token"
 	OauthAuthorize    string = "https://api.twitter.com/oauth/authorize"
-	OauthAccessToken  string = "https://api.twitter.com/oauth/request_token"
+	OauthAccessToken  string = "https://api.twitter.com/oauth/access_token"
 )

@@ -23,25 +23,19 @@ func RequestToken() (RequestTokenResponse, error) {
 		return RequestTokenResponse{}, fmt.Errorf("error generating request to oauth/request_token: %s", err.Error())
 	}
 
-	// oauth_token := os.Getenv("API_KEY")
-	// oauth_token_secret := os.Getenv("API_SECRET")
-	request_signature := GetRequestSignature(
-		"",
-		"",
-		http.MethodPost,
-		endpoint.OauthRequestToken,
-		query_params,
-	)
-
-	auth_header := BuildAuthorizationHeader("", request_signature)
-
-	token_req.Header.Add("Authorization", auth_header)
-
+	AuthorizeRequest(token_req, query_params)
+	fmt.Printf("%#v", token_req)
 	client := &http.Client{}
 	resp, err := client.Do(token_req)
 
+	if resp.StatusCode != http.StatusOK {
+		data, _ := ioutil.ReadAll(resp.Body)
+		fmt.Println(string(data))
+		return RequestTokenResponse{}, fmt.Errorf("error requesting request token: %s", resp.Status)
+	}
+
 	if err != nil {
-		return RequestTokenResponse{}, fmt.Errorf("error requesting first leg of oauth protocol: %s", err.Error())
+		return RequestTokenResponse{}, fmt.Errorf("error requesting request token: %s", err.Error())
 	}
 
 	defer resp.Body.Close()
