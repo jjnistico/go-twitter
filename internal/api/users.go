@@ -16,20 +16,25 @@ type UsersResponse struct {
 	} `json:"data"`
 }
 
-func GetUsersByUsername(w http.ResponseWriter, req *http.Request) {
-	usernames := req.URL.Query().Get("usernames")
-
-	if len(usernames) == 0 {
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte("`usernames` query parameter not present or not populated"))
-		return
-	}
-
-	data, err := tools.RequestData(endpoint.GetUsers, "usernames="+usernames, http.MethodGet, nil)
+func GetUsers(w http.ResponseWriter, req *http.Request) {
+	data, status_code, err := tools.RequestData(endpoint.GetUsers, req.URL.Query(), http.MethodGet, nil)
 
 	if err != nil {
 		fmt.Println(err)
-		w.WriteHeader(http.StatusInternalServerError)
+		w.WriteHeader(status_code)
+		w.Write([]byte(err.Error()))
+		return
+	}
+
+	fmt.Fprint(w, string(data))
+}
+
+func GetUsersByUsername(w http.ResponseWriter, req *http.Request) {
+	data, status_code, err := tools.RequestData(endpoint.GetUsers, req.URL.Query(), http.MethodGet, nil)
+
+	if err != nil {
+		fmt.Println(err)
+		w.WriteHeader(status_code)
 		w.Write([]byte(err.Error()))
 		return
 	}

@@ -1,8 +1,8 @@
-package api
+package authorize
 
 import (
 	"fmt"
-	"gotwitter/internal/tools"
+	"gotwitter/internal/tools/oauth"
 	"net/http"
 )
 
@@ -15,21 +15,21 @@ import (
 // ACCESS_TOKEN = oauth_token                                            //
 // ACCESS_SECRET = oauth_secret                                          //
 // // // // // // // // // // // // // // // // // // // // // // // //  //
-func GetOAuthToken(w http.ResponseWriter, req *http.Request) {
-	token_response, err := tools.RequestToken()
+func AuthenticateUser(w http.ResponseWriter, req *http.Request) {
+	token_response, status_code, err := oauth.RequestToken()
 
 	if err != nil {
 		fmt.Println(err.Error())
-		w.WriteHeader(http.StatusInternalServerError)
+		w.WriteHeader(status_code)
 		w.Write([]byte(err.Error()))
 		return
 	}
 
-	authorize_resp, err := tools.Authorize(token_response.Token)
+	authorize_resp, status_code, err := oauth.Authorize(token_response.Token)
 
 	if err != nil {
 		fmt.Println(err.Error())
-		w.WriteHeader(http.StatusInternalServerError)
+		w.WriteHeader(status_code)
 		w.Write([]byte(err.Error()))
 		return
 	}

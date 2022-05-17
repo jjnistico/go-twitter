@@ -1,4 +1,4 @@
-package tools
+package oauth
 
 import (
 	"fmt"
@@ -48,12 +48,14 @@ func GetRequestSignature(
 	// concatenated with '&'
 	builder.WriteString(fmt.Sprintf("%s&%s&%s", method, PercentEncode(base_url), PercentEncode(parameter_string)))
 	signature_base_string := builder.String()
+	builder.Reset()
 
 	// the signing key is the concatenation of the consumer secret (API_SECRET) and the oauth_token_secret (&)
 	oauth_consumer_secret := os.Getenv("API_SECRET")
-	oauth_token_secret := os.Getenv("ACCESS_TOKEN_SECRET")
-	signing_key := PercentEncode(oauth_consumer_secret) + "&" + PercentEncode(oauth_token_secret)
+	oauth_token_secret := os.Getenv("OAUTH_TOKEN_SECRET")
+	builder.WriteString(fmt.Sprintf("%s&%s", PercentEncode(oauth_consumer_secret), PercentEncode(oauth_token_secret)))
 
+	signing_key := builder.String()
 	hash := HmacHash(signature_base_string, signing_key)
 
 	return hash

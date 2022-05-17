@@ -1,16 +1,17 @@
-package tools
+package oauth
 
 import (
 	"fmt"
 	"net/http"
 	"net/url"
 	"os"
+	"strings"
 	"time"
 )
 
 func AuthorizeRequest(req *http.Request, query_params url.Values) {
 	oauth_consumer_key := os.Getenv("API_KEY")
-	oauth_token := os.Getenv("ACCESS_TOKEN")
+	oauth_token := os.Getenv("OAUTH_TOKEN")
 	nonce := GenerateNonce(42)
 	timestamp := time.Now().Unix()
 
@@ -39,7 +40,26 @@ func AuthorizeRequest(req *http.Request, query_params url.Values) {
 		{"oauth_token": oauth_token},
 		{"oauth_version": "1.0"}}
 
-	auth_header := BuildAuthorizationHeader(authorization_header_payload)
+	auth_header := buildAuthorizationHeader(authorization_header_payload)
 
 	req.Header.Add("Authorization", auth_header)
+}
+
+func buildAuthorizationHeader(header_entries []map[string]string) string {
+	// header string is fields joined by ", ". All key/values are percent encoded
+	builder := strings.Builder{}
+	builder.WriteString("OAuth ")
+	for idx, entry := range header_entries {
+		for k, v := range entry {
+			if v == "" {
+				continue
+			}
+			builder.WriteString(fmt.Sprintf("%s=\"%s\"", PercentEncode(k), PercentEncode(v)))
+			if idx < len(header_entries)-1 {
+				builder.WriteString(", ")
+			}
+		}
+	}
+
+	return builder.String()
 }

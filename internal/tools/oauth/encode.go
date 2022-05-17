@@ -1,4 +1,4 @@
-package tools
+package oauth
 
 import (
 	"fmt"
@@ -19,13 +19,13 @@ func PercentEncode(str string) string {
 		case '-', '.', '_', '~':
 			builder.WriteString(string(ch))
 		default:
-			EncodeRune(ch, &builder)
+			encodeRune(ch, &builder)
 		}
 	}
 	return builder.String()
 }
 
-func EncodeRune(char rune, builder *strings.Builder) {
+func encodeRune(char rune, builder *strings.Builder) {
 	// '%' in hex
 	builder.WriteString("%")
 

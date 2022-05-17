@@ -15,6 +15,19 @@ type TweetsResponse struct {
 	} `json:"data"`
 }
 
+func GetTweets(w http.ResponseWriter, req *http.Request) {
+	data, status_code, err := tools.RequestData(endpoint.GetTweets, req.URL.Query(), http.MethodGet, nil)
+
+	if err != nil {
+		fmt.Println(err)
+		w.WriteHeader(status_code)
+		w.Write([]byte(err.Error()))
+		return
+	}
+
+	fmt.Fprint(w, string(data))
+}
+
 func GetTweetsByIds(w http.ResponseWriter, req *http.Request) {
 	ids := req.URL.Query().Get("ids")
 
@@ -24,11 +37,11 @@ func GetTweetsByIds(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	data, err := tools.RequestData(endpoint.GetTweets, "ids="+ids, http.MethodGet, nil)
+	data, status_code, err := tools.RequestData(endpoint.GetTweets, req.URL.Query(), http.MethodGet, nil)
 
 	if err != nil {
 		fmt.Println(err)
-		w.WriteHeader(http.StatusInternalServerError)
+		w.WriteHeader(status_code)
 		w.Write([]byte(err.Error()))
 		return
 	}
