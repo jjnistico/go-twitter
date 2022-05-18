@@ -25,7 +25,7 @@ func RequestToken() (RequestTokenResponse, int, error) {
 		)
 	}
 
-	AuthorizeRequest(token_req, query_params)
+	AuthorizeRequest(token_req)
 
 	client := &http.Client{}
 	resp, err := client.Do(token_req)

@@ -21,7 +21,7 @@ func RequestData(api_url string, query_params url.Values, method string, payload
 		)
 	}
 
-	oauth.AuthorizeRequest(req, query_params)
+	oauth.AuthorizeRequest(req)
 
 	client := &http.Client{}
 

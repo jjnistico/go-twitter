@@ -24,6 +24,7 @@ func main() {
 	http.HandleFunc("/api/tweets/by/id", api.GetTweetsByIds)
 	http.HandleFunc("/api/users/by/username", api.GetUsersByUsername)
 	http.HandleFunc("/api/users", api.GetUsers)
+	http.HandleFunc("/api/user_timeline", api.GetUserTimeline)
 
 	http.ListenAndServe(":8090", tools.LogRequest(http.DefaultServeMux))
 }

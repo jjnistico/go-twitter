@@ -2,7 +2,6 @@ package oauth
 
 import (
 	"fmt"
-	"net/url"
 	"os"
 	"strings"
 )
@@ -26,12 +25,9 @@ func GetRequestSignature(
 	signature_params []map[string]string,
 	method string,
 	base_url string,
-	query_params url.Values,
+	query_params string,
 ) string {
 	builder := strings.Builder{}
-	// start with encoded query params
-	builder.WriteString(fmt.Sprintf("%s&", query_params.Encode()))
-	// append all signature params encoded
 	for idx, entry := range signature_params {
 		for k, v := range entry {
 			builder.WriteString(fmt.Sprintf("%s=%s", PercentEncode(k), PercentEncode(v)))
@@ -40,19 +36,17 @@ func GetRequestSignature(
 			builder.WriteString("&")
 		}
 	}
-	// parameter string for appending to method + url for signature base string
+
 	parameter_string := builder.String()
 	builder.Reset()
 
-	// signature base string is http method (to uppercase), percent encoded url and percent encoded parameter string
-	// concatenated with '&'
 	builder.WriteString(fmt.Sprintf("%s&%s&%s", method, PercentEncode(base_url), PercentEncode(parameter_string)))
 	signature_base_string := builder.String()
 	builder.Reset()
 
-	// the signing key is the concatenation of the consumer secret (API_SECRET) and the oauth_token_secret (&)
 	oauth_consumer_secret := os.Getenv("API_SECRET")
 	oauth_token_secret := os.Getenv("OAUTH_TOKEN_SECRET")
+
 	builder.WriteString(fmt.Sprintf("%s&%s", PercentEncode(oauth_consumer_secret), PercentEncode(oauth_token_secret)))
 
 	signing_key := builder.String()

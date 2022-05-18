@@ -3,24 +3,42 @@ package oauth
 import (
 	"fmt"
 	"net/http"
-	"net/url"
 	"os"
+	"sort"
 	"strings"
 	"time"
 )
 
-func AuthorizeRequest(req *http.Request, query_params url.Values) {
+func AuthorizeRequest(req *http.Request) {
 	oauth_consumer_key := os.Getenv("API_KEY")
 	oauth_token := os.Getenv("OAUTH_TOKEN")
 	nonce := GenerateNonce(42)
 	timestamp := time.Now().Unix()
 
-	signature_payload := []map[string]string{
-		{"oauth_consumer_key": oauth_consumer_key},
-		{"oauth_nonce": nonce},
-		{"oauth_signature_method": "HMAC-SHA1"},
-		{"oauth_timestamp": fmt.Sprintf("%d", timestamp)},
-		{"oauth_version": "1.0"}}
+	query_params := req.URL.Query()
+
+	signature_payload := []map[string]string{}
+	for key, param := range query_params {
+		signature_payload = append(signature_payload, map[string]string{key: strings.Join(param, ",")})
+	}
+
+	signature_payload = append(signature_payload,
+		map[string]string{"oauth_consumer_key": oauth_consumer_key},
+		map[string]string{"oauth_nonce": nonce},
+		map[string]string{"oauth_signature_method": "HMAC-SHA1"},
+		map[string]string{"oauth_timestamp": fmt.Sprintf("%d", timestamp)},
+		map[string]string{"oauth_version": "1.0"})
+
+	sort.Slice(signature_payload, func(i, j int) bool {
+		var a_key, b_key string
+		for key := range signature_payload[i] {
+			a_key = key
+		}
+		for key := range signature_payload[j] {
+			b_key = key
+		}
+		return a_key < b_key
+	})
 
 	req_url := req.URL.Scheme + "://" + req.URL.Host + req.URL.Path
 
@@ -28,7 +46,7 @@ func AuthorizeRequest(req *http.Request, query_params url.Values) {
 		signature_payload,
 		req.Method,
 		req_url,
-		query_params,
+		req.URL.RawQuery,
 	)
 
 	authorization_header_payload := []map[string]string{
@@ -54,7 +72,12 @@ func buildAuthorizationHeader(header_entries []map[string]string) string {
 			if v == "" {
 				continue
 			}
-			builder.WriteString(fmt.Sprintf("%s=\"%s\"", PercentEncode(k), PercentEncode(v)))
+			// builder.WriteString(fmt.Sprintf("%s=\"%s\"", PercentEncode(k), PercentEncode(v)))
+			builder.WriteString(PercentEncode(k))
+			builder.WriteString("=")
+			builder.WriteString(`"`)
+			builder.WriteString(PercentEncode(v))
+			builder.WriteString(`"`)
 			if idx < len(header_entries)-1 {
 				builder.WriteString(", ")
 			}
