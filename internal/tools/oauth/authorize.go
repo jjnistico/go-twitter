@@ -42,6 +42,8 @@ func AuthorizeRequest(req *http.Request) {
 
 	req_url := req.URL.Scheme + "://" + req.URL.Host + req.URL.Path
 
+	fmt.Printf("%#v", signature_payload)
+
 	request_signature := GetRequestSignature(
 		signature_payload,
 		req.Method,
