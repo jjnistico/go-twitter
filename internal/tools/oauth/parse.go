@@ -26,10 +26,10 @@ func ParseRequestTokenStringToStruct(str string) RequestTokenResponse {
 }
 
 type AccessTokenResponse struct {
-	OauthToken       string
-	OauthTokenSecret string
-	UserId           string
-	ScreenName       string
+	ScreenName       string `json:"screenName"`
+	UserId           string `json:"userId"`
+	OAuthToken       string `json:"oauthToken"`
+	OAuthTokenSecret string `json:"oauthTokenSecret"`
 }
 
 func ParseAccessTokenStringToStruct(str string) AccessTokenResponse {
@@ -39,9 +39,9 @@ func ParseAccessTokenStringToStruct(str string) AccessTokenResponse {
 		split_val := strings.Split(val, "=")
 		switch split_val[0] {
 		case "oauth_token":
-			token_resp.OauthToken = split_val[1]
+			token_resp.OAuthToken = split_val[1]
 		case "oauth_token_secret":
-			token_resp.OauthTokenSecret = split_val[1]
+			token_resp.OAuthTokenSecret = split_val[1]
 		case "user_id":
 			token_resp.UserId = split_val[1]
 		case "screen_name":

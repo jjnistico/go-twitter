@@ -30,10 +30,15 @@ func GetRequestSignature(
 	builder := strings.Builder{}
 	for idx, entry := range signature_params {
 		for k, v := range entry {
+			if v == "" {
+				continue
+			}
+
 			builder.WriteString(fmt.Sprintf("%s=%s", PercentEncode(k), PercentEncode(v)))
-		}
-		if idx < len(signature_params)-1 {
-			builder.WriteString("&")
+
+			if idx < len(signature_params)-1 {
+				builder.WriteString("&")
+			}
 		}
 	}
 

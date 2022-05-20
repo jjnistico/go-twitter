@@ -28,16 +28,3 @@ func GetUsers(w http.ResponseWriter, req *http.Request) {
 
 	fmt.Fprint(w, string(data))
 }
-
-func GetUsersByUsername(w http.ResponseWriter, req *http.Request) {
-	data, status_code, err := tools.RequestData(endpoint.GetUsers, req.URL.Query(), http.MethodGet, nil)
-
-	if err != nil {
-		fmt.Println(err)
-		w.WriteHeader(status_code)
-		w.Write([]byte(err.Error()))
-		return
-	}
-
-	fmt.Fprint(w, string(data))
-}

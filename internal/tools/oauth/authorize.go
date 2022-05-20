@@ -2,9 +2,9 @@ package oauth
 
 import (
 	"fmt"
+	"gotwitter/internal/tools/utils"
 	"net/http"
 	"os"
-	"sort"
 	"strings"
 	"time"
 )
@@ -12,7 +12,7 @@ import (
 func AuthorizeRequest(req *http.Request) {
 	oauth_consumer_key := os.Getenv("API_KEY")
 	oauth_token := os.Getenv("OAUTH_TOKEN")
-	nonce := GenerateNonce(42)
+	nonce := GenerateNonce(14)
 	timestamp := time.Now().Unix()
 
 	query_params := req.URL.Query()
@@ -27,22 +27,12 @@ func AuthorizeRequest(req *http.Request) {
 		map[string]string{"oauth_nonce": nonce},
 		map[string]string{"oauth_signature_method": "HMAC-SHA1"},
 		map[string]string{"oauth_timestamp": fmt.Sprintf("%d", timestamp)},
+		map[string]string{"oauth_token": oauth_token},
 		map[string]string{"oauth_version": "1.0"})
 
-	sort.Slice(signature_payload, func(i, j int) bool {
-		var a_key, b_key string
-		for key := range signature_payload[i] {
-			a_key = key
-		}
-		for key := range signature_payload[j] {
-			b_key = key
-		}
-		return a_key < b_key
-	})
+	utils.SortByMapKey(signature_payload)
 
 	req_url := req.URL.Scheme + "://" + req.URL.Host + req.URL.Path
-
-	fmt.Printf("%#v", signature_payload)
 
 	request_signature := GetRequestSignature(
 		signature_payload,
@@ -74,12 +64,7 @@ func buildAuthorizationHeader(header_entries []map[string]string) string {
 			if v == "" {
 				continue
 			}
-			// builder.WriteString(fmt.Sprintf("%s=\"%s\"", PercentEncode(k), PercentEncode(v)))
-			builder.WriteString(PercentEncode(k))
-			builder.WriteString("=")
-			builder.WriteString(`"`)
-			builder.WriteString(PercentEncode(v))
-			builder.WriteString(`"`)
+			builder.WriteString(fmt.Sprintf("%s=\"%s\"", PercentEncode(k), PercentEncode(v)))
 			if idx < len(header_entries)-1 {
 				builder.WriteString(", ")
 			}

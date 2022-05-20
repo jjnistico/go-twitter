@@ -25,12 +25,10 @@ func Callback(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	os.Setenv("OAUTH_TOKEN", access_token_response.OauthToken)
-	os.Setenv("OAUTH_TOKEN_SECRET", access_token_response.OauthTokenSecret)
+	os.Setenv("OAUTH_TOKEN", access_token_response.OAuthToken)
+	os.Setenv("OAUTH_TOKEN_SECRET", access_token_response.OAuthTokenSecret)
 	os.Setenv("USER_ID", access_token_response.UserId)
 	os.Setenv("SCREEN_NAME", access_token_response.ScreenName)
-
-	fmt.Printf("%#v", access_token_response)
 
 	w.WriteHeader(status_code)
 }

@@ -7,5 +7,6 @@ const (
 	OauthAuthorize    string = "https://api.twitter.com/oauth/authorize"
 	OauthAuthenticate string = "https://api.twitter.com/oauth/authenticate"
 	OauthAccessToken  string = "https://api.twitter.com/oauth/access_token"
+	HomeTimeline      string = "https://api.twitter.com/1.1/statuses/home_timeline.json"
 	UserTimeline      string = "https://api.twitter.com/1.1/statuses/user_timeline.json"
 )

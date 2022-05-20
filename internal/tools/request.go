@@ -9,7 +9,12 @@ import (
 	"net/url"
 )
 
-func RequestData(api_url string, query_params url.Values, method string, payload io.Reader) ([]byte, int, error) {
+func RequestData(
+	api_url string,
+	query_params url.Values,
+	method string,
+	payload io.Reader,
+) ([]byte, int, error) {
 	req, err := http.NewRequest(method, api_url+"?"+query_params.Encode(), payload)
 
 	if err != nil {
@@ -39,5 +44,5 @@ func RequestData(api_url string, query_params url.Values, method string, payload
 		return nil, http.StatusInternalServerError, fmt.Errorf("error reading response from %s", api_url)
 	}
 
-	return data, http.StatusOK, nil
+	return data, resp.StatusCode, nil
 }
