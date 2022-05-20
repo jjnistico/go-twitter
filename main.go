@@ -27,5 +27,5 @@ func main() {
 	http.HandleFunc("/api/home_timeline", api.GetHomeTimeline)
 	http.HandleFunc("/api/user_timeline", api.GetUserTimeline)
 
-	http.ListenAndServe(":8090", tools.LogRequest(http.DefaultServeMux))
+	http.ListenAndServe(":8090", tools.RequestHandler(http.DefaultServeMux))
 }

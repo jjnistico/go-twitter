@@ -51,12 +51,12 @@ func RequestToken() (RequestTokenResponse, int, error) {
 	return token_struct, resp.StatusCode, nil
 }
 
-// Authorize is an unauthorized request. It returns the twitter page for login
-func Authorize(oauth_token string) ([]byte, int, error) {
+// Authenticate is an unauthorized request. It returns the twitter page for login
+func Authenticate(oauth_token string) ([]byte, int, error) {
 	query_params := url.Values{}
 	query_params.Set("oauth_token", oauth_token)
 
-	auth_req, err := http.NewRequest(http.MethodGet, endpoint.OauthAuthorize+"?"+query_params.Encode(), nil)
+	auth_req, err := http.NewRequest(http.MethodGet, endpoint.OauthAuthenticate+"?"+query_params.Encode(), nil)
 
 	if err != nil {
 		return nil, http.StatusInternalServerError, fmt.Errorf(

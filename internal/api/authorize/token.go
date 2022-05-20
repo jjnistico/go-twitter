@@ -8,15 +8,6 @@ import (
 	"os"
 )
 
-// // // // // // // // // // // // // // // // // // // // // // // //  //
-// The following are specific to the application making the request      //
-// API_KEY = oauth_consumer_key                                          //
-// API_SECRET = oauth_consumer_secret                                    //
-//                                                                       //
-// The following are tokens used to authentication on behalf of the user //
-// ACCESS_TOKEN = oauth_token                                            //
-// ACCESS_SECRET = oauth_secret                                          //
-// // // // // // // // // // // // // // // // // // // // // // // //  //
 func AuthenticateUser(w http.ResponseWriter, req *http.Request) {
 	token_response, status_code, err := oauth.RequestToken()
 
@@ -27,7 +18,7 @@ func AuthenticateUser(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	authorize_resp, status_code, err := oauth.Authorize(token_response.Token)
+	authorize_resp, status_code, err := oauth.Authenticate(token_response.Token)
 
 	if err != nil {
 		fmt.Println(err.Error())
