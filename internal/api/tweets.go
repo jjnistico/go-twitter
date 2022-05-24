@@ -46,5 +46,5 @@ func GetTweetsByIds(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	fmt.Fprint(w, string(data))
+	w.Write(data)
 }

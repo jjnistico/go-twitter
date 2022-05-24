@@ -53,7 +53,6 @@ func GetUserTimeline(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	w.Header().Set("Access-Control-Allow-Origin", "http://localhost:3000")
 	w.Write(data)
 }
 

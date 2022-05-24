@@ -21,6 +21,7 @@ func main() {
 	http.HandleFunc("/callback", authorize.Callback)
 	http.HandleFunc("/authenticate", authorize.AuthenticateUser)
 	http.HandleFunc("/access_token", authorize.AccessToken)
+	http.HandleFunc("/is_authenticated", authorize.IsAuthenticated)
 	http.HandleFunc("/api/tweets", api.GetTweets)
 	http.HandleFunc("/api/tweets/by/id", api.GetTweetsByIds)
 	http.HandleFunc("/api/users", api.GetUsers)
