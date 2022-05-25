@@ -48,7 +48,7 @@ func GetUserTimeline(w http.ResponseWriter, req *http.Request) {
 	w.WriteHeader(status_code)
 
 	if err != nil {
-		fmt.Printf("error requesting user timeline: %s", err.Error())
+		fmt.Printf("error requesting user timeline: %s\n", err.Error())
 		w.Write([]byte(err.Error()))
 		return
 	}
@@ -82,7 +82,34 @@ func GetHomeTimeline(w http.ResponseWriter, req *http.Request) {
 	w.WriteHeader(status_code)
 
 	if err != nil {
-		fmt.Printf("error requesting home timeline: %s", err.Error())
+		fmt.Printf("error requesting home timeline: %s\n", err.Error())
+		w.Write([]byte(err.Error()))
+		return
+	}
+
+	w.Write(data)
+}
+
+func GetTimelineTweets(w http.ResponseWriter, req *http.Request) {
+	user_id := req.URL.Query().Get("user_id")
+
+	if len(user_id) == 0 {
+		error_msg := "`user_id` query param not supplied to timeline endpoint"
+		fmt.Println(error_msg)
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte(error_msg))
+		return
+	}
+
+	query_params := req.URL.Query()
+	query_params.Del("user_id")
+
+	data, status_code, err := tools.RequestData(endpoint.TimelineTweets(user_id), query_params, http.MethodGet, nil)
+
+	w.WriteHeader(status_code)
+
+	if err != nil {
+		fmt.Printf("error requesting user's timeline: %s\n", err.Error())
 		w.Write([]byte(err.Error()))
 		return
 	}

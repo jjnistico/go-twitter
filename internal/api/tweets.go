@@ -18,14 +18,15 @@ type TweetsResponse struct {
 func GetTweets(w http.ResponseWriter, req *http.Request) {
 	data, status_code, err := tools.RequestData(endpoint.GetTweets, req.URL.Query(), http.MethodGet, nil)
 
+	w.WriteHeader(status_code)
+
 	if err != nil {
 		fmt.Println(err)
-		w.WriteHeader(status_code)
 		w.Write([]byte(err.Error()))
 		return
 	}
 
-	fmt.Fprint(w, string(data))
+	w.Write(data)
 }
 
 func GetTweetsByIds(w http.ResponseWriter, req *http.Request) {

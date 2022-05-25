@@ -18,15 +18,26 @@ func main() {
 		log.Fatal("Error loading .env file")
 	}
 
+	// oauth related endpoints
 	http.HandleFunc("/callback", authorize.Callback)
 	http.HandleFunc("/authenticate", authorize.AuthenticateUser)
 	http.HandleFunc("/access_token", authorize.AccessToken)
 	http.HandleFunc("/is_authenticated", authorize.IsAuthenticated)
+
+	// tweets
 	http.HandleFunc("/api/tweets", api.GetTweets)
 	http.HandleFunc("/api/tweets/by/id", api.GetTweetsByIds)
+
+	// users
 	http.HandleFunc("/api/users", api.GetUsers)
-	http.HandleFunc("/api/home_timeline", api.GetHomeTimeline)
-	http.HandleFunc("/api/user_timeline", api.GetUserTimeline)
+	http.HandleFunc("/api/user_by_username", api.GetUserByUsername)
+
+	// timeline
+	http.HandleFunc("/api/timeline_tweets", api.GetTimelineTweets)
+
+	// 1.1
+	http.HandleFunc("/api/1.1/home_timeline", api.GetHomeTimeline)
+	http.HandleFunc("/api/1.1/user_timeline", api.GetUserTimeline)
 
 	http.ListenAndServe(":8090", tools.RequestHandler(http.DefaultServeMux))
 }
