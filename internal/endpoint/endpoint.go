@@ -20,3 +20,8 @@ func TimelineTweets(user_id string) string {
 func UserByUsername(user_name string) string {
 	return fmt.Sprintf("%s/by/username/%s", GetUsers, user_name)
 }
+
+// see https://developer.twitter.com/en/docs/twitter-api/tweets/quote-tweets/api-reference/get-tweets-id-quote_tweets
+func QuoteTweetsByTweetId(tweet_id string) string {
+	return fmt.Sprintf("%s/%s/quote_tweets", GetTweets, tweet_id)
+}

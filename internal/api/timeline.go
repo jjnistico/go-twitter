@@ -43,17 +43,7 @@ type UserTimelineResponse struct {
 // for more information, see https://developer.twitter.com/en/docs/twitter-api/v1/tweets/timelines/api-reference/get-statuses-user_timeline
 //                                                                                                  //
 func GetUserTimeline(w http.ResponseWriter, req *http.Request) {
-	data, status_code, err := tools.RequestData(endpoint.UserTimeline, req.URL.Query(), http.MethodGet, nil)
-
-	w.WriteHeader(status_code)
-
-	if err != nil {
-		fmt.Printf("error requesting user timeline: %s\n", err.Error())
-		w.Write([]byte(err.Error()))
-		return
-	}
-
-	w.Write(data)
+	ApiRoute(w, req, endpoint.UserTimeline, http.MethodGet)
 }
 
 type HomeTimelineResponse struct {
@@ -77,17 +67,7 @@ type HomeTimelineResponse struct {
 // for more information, see https://developer.twitter.com/en/docs/twitter-api/v1/tweets/timelines/api-reference/get-statuses-home_timeline
 //                                                                                                  //
 func GetHomeTimeline(w http.ResponseWriter, req *http.Request) {
-	data, status_code, err := tools.RequestData(endpoint.HomeTimeline, req.URL.Query(), http.MethodGet, nil)
-
-	w.WriteHeader(status_code)
-
-	if err != nil {
-		fmt.Printf("error requesting home timeline: %s\n", err.Error())
-		w.Write([]byte(err.Error()))
-		return
-	}
-
-	w.Write(data)
+	ApiRoute(w, req, endpoint.HomeTimeline, http.MethodGet)
 }
 
 func GetTimelineTweets(w http.ResponseWriter, req *http.Request) {

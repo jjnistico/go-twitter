@@ -17,17 +17,7 @@ type UsersResponse struct {
 }
 
 func GetUsers(w http.ResponseWriter, req *http.Request) {
-	data, status_code, err := tools.RequestData(endpoint.GetUsers, req.URL.Query(), http.MethodGet, nil)
-
-	w.WriteHeader(status_code)
-
-	if err != nil {
-		fmt.Println(err)
-		w.Write([]byte(err.Error()))
-		return
-	}
-
-	w.Write(data)
+	ApiRoute(w, req, endpoint.GetUsers, http.MethodGet)
 }
 
 func GetUserByUsername(w http.ResponseWriter, req *http.Request) {
