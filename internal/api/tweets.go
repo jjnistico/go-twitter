@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"gotwitter/internal/endpoint"
+	"gotwitter/internal/tools"
 )
 
 // see https://developer.twitter.com/en/docs/twitter-api/tweets/lookup/api-reference/get-tweets
@@ -92,5 +93,45 @@ type TweetsResponse struct {
 // NOTE: Must pass `expansions=referenced_tweets.id` in query parameters
 //
 func GetTweets(w http.ResponseWriter, req *http.Request) {
-	ApiRoute(w, req, endpoint.GetTweets, http.MethodGet)
+	ApiRoute(w, req, endpoint.Tweets, http.MethodGet, tools.EMPTY_PAYLOAD{})
+}
+
+func TweetById(w http.ResponseWriter, req *http.Request) {
+	tweet_id := req.URL.Query().Get("id")
+
+	if len(tweet_id) == 0 {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte("`id` query parameter required for this endpoint"))
+		return
+	}
+
+	q := req.URL.Query()
+	q.Del("id")
+	req.URL.RawQuery = q.Encode()
+
+	ApiRoute(w, req, endpoint.TweetById(tweet_id), req.Method, tools.EMPTY_PAYLOAD{})
+}
+
+func Tweets(w http.ResponseWriter, req *http.Request) {
+	switch req.Method {
+	case http.MethodGet:
+		fallthrough
+	case http.MethodOptions:
+		GetTweets(w, req)
+	default:
+		w.WriteHeader(http.StatusMethodNotAllowed)
+		w.Write([]byte("only [GET, OPTIONS] method allowed for this endpoint"))
+	}
+}
+
+func TweetsById(w http.ResponseWriter, req *http.Request) {
+	switch req.Method {
+	case http.MethodDelete:
+		fallthrough
+	case http.MethodGet:
+		TweetById(w, req)
+	default:
+		w.WriteHeader(http.StatusMethodNotAllowed)
+		w.Write([]byte("only [GET, DELETE] method allowed for this endpoint"))
+	}
 }

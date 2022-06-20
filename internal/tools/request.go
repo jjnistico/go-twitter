@@ -16,6 +16,7 @@ func RequestData(
 	payload io.Reader,
 ) ([]byte, int, error) {
 	req, err := http.NewRequest(method, api_url+"?"+query_params.Encode(), payload)
+	req.Header.Add("content-type", "application/json")
 
 	if err != nil {
 		return nil, http.StatusInternalServerError, fmt.Errorf(
@@ -46,3 +47,5 @@ func RequestData(
 
 	return data, resp.StatusCode, nil
 }
+
+type EMPTY_PAYLOAD = map[string]string

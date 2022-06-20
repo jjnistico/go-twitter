@@ -26,7 +26,6 @@ func PercentEncode(str string) string {
 }
 
 func encodeRune(char rune, builder *strings.Builder) {
-	// '%' in hex
 	builder.WriteString("%")
 
 	// hex representation of char as string

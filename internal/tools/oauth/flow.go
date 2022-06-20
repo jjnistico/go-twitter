@@ -31,7 +31,6 @@ func RequestToken() (RequestTokenResponse, int, error) {
 	resp, err := client.Do(token_req)
 
 	if resp.StatusCode != http.StatusOK {
-		// data, _ := ioutil.ReadAll(resp.Body)
 		return RequestTokenResponse{}, resp.StatusCode, fmt.Errorf("error requesting request token: %s", resp.Status)
 	}
 
