@@ -26,7 +26,6 @@ func main() {
 
 	// tweets
 	http.HandleFunc("/api/tweets", api.Tweets)
-	http.HandleFunc("/api/tweets/by/id", api.TweetById)
 
 	// users
 	http.HandleFunc("/api/users", api.GetUsers)
