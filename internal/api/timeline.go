@@ -43,7 +43,7 @@ type UserTimelineResponse struct {
 // for more information, see https://developer.twitter.com/en/docs/twitter-api/v1/tweets/timelines/api-reference/get-statuses-user_timeline
 //                                                                                                  //
 func GetUserTimeline(w http.ResponseWriter, req *http.Request) {
-	ApiRoute(w, req, endpoint.UserTimeline, http.MethodGet, tools.EMPTY_PAYLOAD{})
+	ApiRoute(w, req, endpoint.UserTimeline, http.MethodGet, nil, nil)
 }
 
 type HomeTimelineResponse struct {
@@ -67,7 +67,7 @@ type HomeTimelineResponse struct {
 // for more information, see https://developer.twitter.com/en/docs/twitter-api/v1/tweets/timelines/api-reference/get-statuses-home_timeline
 //                                                                                                  //
 func GetHomeTimeline(w http.ResponseWriter, req *http.Request) {
-	ApiRoute(w, req, endpoint.HomeTimeline, http.MethodGet, tools.EMPTY_PAYLOAD{})
+	ApiRoute(w, req, endpoint.HomeTimeline, http.MethodGet, nil, nil)
 }
 
 func GetTimelineTweets(w http.ResponseWriter, req *http.Request) {

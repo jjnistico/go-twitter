@@ -93,7 +93,15 @@ type TweetsResponse struct {
 // NOTE: Must pass `expansions=referenced_tweets.id` in query parameters
 //
 func GetTweets(w http.ResponseWriter, req *http.Request) {
-	ApiRoute(w, req, endpoint.Tweets, http.MethodGet, tools.EMPTY_PAYLOAD{})
+	// ids := req.URL.Query().Get("ids")
+
+	// if len(ids) == 0 {
+	// 	w.WriteHeader(http.StatusBadRequest)
+	// 	w.Write([]byte("required parameter `ids` missing or empty"))
+	// 	return
+	// }
+
+	ApiRoute(w, req, endpoint.Tweets, http.MethodGet, nil, []string{"ids"})
 }
 
 func TweetById(w http.ResponseWriter, req *http.Request) {
@@ -109,7 +117,7 @@ func TweetById(w http.ResponseWriter, req *http.Request) {
 	q.Del("id")
 	req.URL.RawQuery = q.Encode()
 
-	ApiRoute(w, req, endpoint.TweetById(tweet_id), req.Method, tools.EMPTY_PAYLOAD{})
+	ApiRoute(w, req, endpoint.TweetById(tweet_id), req.Method, tools.EMPTY_PAYLOAD{}, []string{"id"})
 }
 
 func Tweets(w http.ResponseWriter, req *http.Request) {

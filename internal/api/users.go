@@ -17,7 +17,7 @@ type UsersResponse struct {
 }
 
 func GetUsers(w http.ResponseWriter, req *http.Request) {
-	ApiRoute(w, req, endpoint.Users, http.MethodGet, tools.EMPTY_PAYLOAD{})
+	ApiRoute(w, req, endpoint.Users, http.MethodGet, nil, nil)
 }
 
 func GetUserByUsername(w http.ResponseWriter, req *http.Request) {
