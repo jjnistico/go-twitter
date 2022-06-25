@@ -45,7 +45,7 @@ type TweetsResponse struct {
 		InReplyToUserId    string             `json:"in_reply_to_user_id"`
 		ReferencedTweets   []ReferencedTweets `json:"referenced_tweets"`
 		Attachments        Attachments        `json:"attachments"`
-		Geo                `json:"geo"`
+		Geo                Geo                `json:"geo"`
 		ContextAnnotations []struct {
 			Domain struct {
 				Id          string `json:"id"`
