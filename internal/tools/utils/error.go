@@ -3,15 +3,12 @@ package utils
 import "gotwitter/internal/types"
 
 func OneOffErrorResponse(message string, title string) types.ApiResponse {
-	errors := []types.Error{{Title: title, Message: message, Detail: "", Type: ""}}
+	errors := []types.Error{{Title: title, Message: message, Detail: "", Type: "internal exception"}}
 	return types.ApiResponse{Errors: errors, Data: nil}
 }
 
-func ErrorResponse(messages []string, title string) types.ApiResponse {
-	errors := []types.Error{}
-	for _, message := range messages {
-		errors = append(errors, types.Error{Title: title, Message: message, Detail: "", Type: "missing query parameter"})
-	}
+func ErrorResponse(message string, title string, detail string, err_type string) types.ApiResponse {
+	errors := []types.Error{{Message: message, Title: title, Detail: detail, Type: err_type}}
 	return types.ApiResponse{Errors: errors, Data: nil}
 }
 

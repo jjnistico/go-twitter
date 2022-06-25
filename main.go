@@ -34,9 +34,5 @@ func main() {
 	// timeline
 	http.HandleFunc("/api/timeline_tweets", api.GetTimelineTweets)
 
-	// 1.1
-	http.HandleFunc("/api/1.1/home_timeline", api.GetHomeTimeline)
-	http.HandleFunc("/api/1.1/user_timeline", api.GetUserTimeline)
-
 	http.ListenAndServe(":8090", tools.RequestHandler(http.DefaultServeMux))
 }

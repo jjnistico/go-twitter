@@ -1,13 +1,13 @@
 package api
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
 	"gotwitter/internal/endpoint"
 	"gotwitter/internal/tools"
 	"gotwitter/internal/tools/utils"
 	"net/http"
+	"strings"
 )
 
 func ApiRoute(
@@ -15,49 +15,27 @@ func ApiRoute(
 	req *http.Request,
 	api_endpoint string,
 	http_method string,
-	payload interface{},
 	required_query_params []string) {
 	// options request used to query available query parameters for endpoint
+	// TODO: Move to handler
 	if req.Method == http.MethodOptions {
 		handleOptionsRequest(w, api_endpoint)
 		return
 	}
 
 	if len(required_query_params) > 0 {
-		missing_params := handleRequiredQueryParams(w, req, required_query_params)
+		has_required_params := hasRequiredQueryParams(w, req, required_query_params)
 
-		if missing_params {
+		if !has_required_params {
 			return
 		}
 	}
 
-	var buf bytes.Buffer
-	if payload == nil {
-		payload = map[string]string{}
-	}
-	err := json.NewEncoder(&buf).Encode(payload)
-
-	if err != nil {
-		fmt.Println(err)
-		w.WriteHeader(http.StatusInternalServerError)
-
-		json_resp, err := json.Marshal(utils.OneOffErrorResponse(err.Error(), "unable to buffer request payload"))
-
-		if err != nil {
-			panic(err)
-		}
-
-		w.Write(json_resp)
-		return
-	}
-
-	data, status_code, err := tools.RequestData(api_endpoint, req.URL.Query(), http_method, &buf)
+	data, status_code, err := tools.RequestData(api_endpoint, req.URL.Query(), http_method, req.Body)
 
 	w.WriteHeader(status_code)
 
 	if err != nil {
-		fmt.Println(err)
-
 		json_resp, err := json.Marshal(utils.OneOffErrorResponse(err.Error(), "error requesting data"))
 
 		if err != nil {
@@ -65,6 +43,7 @@ func ApiRoute(
 		}
 
 		w.Write(json_resp)
+
 		return
 	}
 
@@ -81,13 +60,16 @@ func handleOptionsRequest(w http.ResponseWriter, api_endpoint string) {
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 
-		json_resp, err := json.Marshal(utils.OneOffErrorResponse(err.Error(), "unable to serialize endpoint options"))
+		json_resp, err := json.Marshal(utils.OneOffErrorResponse(
+			err.Error(), "unable to serialize endpoint options",
+		))
 
 		if err != nil {
 			panic(err)
 		}
 
 		w.Write(json_resp)
+
 		return
 	}
 
@@ -95,7 +77,7 @@ func handleOptionsRequest(w http.ResponseWriter, api_endpoint string) {
 	w.Write(options_json)
 }
 
-func handleRequiredQueryParams(w http.ResponseWriter, req *http.Request, required_params []string) bool {
+func hasRequiredQueryParams(w http.ResponseWriter, req *http.Request, required_params []string) bool {
 	missing_query_params := []string{}
 	for _, required_param := range required_params {
 		curr_query_val := req.URL.Query().Get(required_param)
@@ -107,14 +89,19 @@ func handleRequiredQueryParams(w http.ResponseWriter, req *http.Request, require
 	if len(missing_query_params) > 0 {
 		w.WriteHeader(http.StatusBadRequest)
 
-		json_resp, err := json.Marshal(utils.ErrorResponse(missing_query_params, "missing required query parameter"))
+		json_resp, err := json.Marshal(utils.ErrorResponse(
+			fmt.Sprintf("missing parameters: [%s]", strings.Join(missing_query_params, ", ")),
+			"invalid request",
+			"missing required query parameter",
+			req.Method,
+		))
 
 		if err != nil {
 			panic(err)
 		}
 
 		w.Write(json_resp)
-		return true
+		return false
 	}
-	return false
+	return true
 }

@@ -47,5 +47,3 @@ func RequestData(
 
 	return data, resp.StatusCode, nil
 }
-
-type EMPTY_PAYLOAD = map[string]string

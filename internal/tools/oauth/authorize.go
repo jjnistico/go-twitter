@@ -56,7 +56,6 @@ func AuthorizeRequest(req *http.Request) {
 }
 
 func buildAuthorizationHeader(header_entries []map[string]string) string {
-	// header string is fields joined by ", ". All key/values are percent encoded
 	builder := strings.Builder{}
 	builder.WriteString("OAuth ")
 	for idx, entry := range header_entries {
