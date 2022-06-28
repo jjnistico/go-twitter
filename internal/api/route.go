@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"gotwitter/internal/endpoint"
 	"gotwitter/internal/tools"
-	"gotwitter/internal/tools/utils"
+	"gotwitter/internal/tools/utils/response"
 	"net/http"
 	"strings"
 )
@@ -36,7 +36,7 @@ func ApiRoute(
 	w.WriteHeader(status_code)
 
 	if err != nil {
-		json_resp, err := json.Marshal(utils.OneOffErrorResponse(err.Error(), "error requesting data"))
+		json_resp, err := json.Marshal(response.OneOffErrorResponse(err.Error(), "error requesting data"))
 
 		if err != nil {
 			panic(err)
@@ -53,14 +53,14 @@ func ApiRoute(
 func handleOptionsRequest(w http.ResponseWriter, api_endpoint string) {
 	options := endpoint.GetEndpointOptions(api_endpoint)
 
-	options_map := make(map[string][]string)
-	options_map["options"] = options
-	options_json, err := json.Marshal(utils.ApiResponseFromData(options_map))
+	options_json, err := json.Marshal(
+		response.ApiResponseFromData(map[string][]string{"options": options}),
+	)
 
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 
-		json_resp, err := json.Marshal(utils.OneOffErrorResponse(
+		json_resp, err := json.Marshal(response.OneOffErrorResponse(
 			err.Error(), "unable to serialize endpoint options",
 		))
 
@@ -89,7 +89,7 @@ func hasRequiredQueryParams(w http.ResponseWriter, req *http.Request, required_p
 	if len(missing_query_params) > 0 {
 		w.WriteHeader(http.StatusBadRequest)
 
-		json_resp, err := json.Marshal(utils.ErrorResponse(
+		json_resp, err := json.Marshal(response.ErrorResponse(
 			fmt.Sprintf("missing parameters: [%s]", strings.Join(missing_query_params, ", ")),
 			"invalid request",
 			"missing required query parameter",

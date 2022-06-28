@@ -1,4 +1,4 @@
-package error
+package response
 
 import "gotwitter/internal/types"
 
