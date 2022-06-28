@@ -17,18 +17,18 @@ func AuthorizeRequest(req *http.Request) {
 
 	query_params := req.URL.Query()
 
-	signature_payload := []map[string]string{}
+	signature_payload := []map[string]string{
+		{"oauth_consumer_key": oauth_consumer_key},
+		{"oauth_nonce": nonce},
+		{"oauth_signature_method": "HMAC-SHA1"},
+		{"oauth_timestamp": fmt.Sprintf("%d", timestamp)},
+		{"oauth_token": oauth_token},
+		{"oauth_version": "1.0"},
+	}
+
 	for key, param := range query_params {
 		signature_payload = append(signature_payload, map[string]string{key: strings.Join(param, ",")})
 	}
-
-	signature_payload = append(signature_payload,
-		map[string]string{"oauth_consumer_key": oauth_consumer_key},
-		map[string]string{"oauth_nonce": nonce},
-		map[string]string{"oauth_signature_method": "HMAC-SHA1"},
-		map[string]string{"oauth_timestamp": fmt.Sprintf("%d", timestamp)},
-		map[string]string{"oauth_token": oauth_token},
-		map[string]string{"oauth_version": "1.0"})
 
 	utils.SortByMapKey(signature_payload)
 
