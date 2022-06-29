@@ -28,3 +28,7 @@ func QuoteTweetsByTweetId(tweet_id string) string {
 func TweetById(tweet_id string) string {
 	return fmt.Sprintf("%s/%s", Tweets, tweet_id)
 }
+
+func FollowersById(user_id string) string {
+	return fmt.Sprintf("%s/%s/followers", Users, user_id)
+}
