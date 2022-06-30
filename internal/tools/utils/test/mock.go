@@ -1,15 +1,18 @@
 package test
 
 import (
-	"encoding/json"
 	"fmt"
 	"gotwitter/internal/tools/utils/response"
 )
 
 func MockResponseFromError(path_param string) []byte {
-	json_resp, _ := json.Marshal(response.OneOffErrorResponse(
-		fmt.Sprintf("`%s` query parameter required", path_param), "invalid request",
-	))
+	response := response.Response{}
+	response.AddError(
+		"invalid request",
+		fmt.Sprintf("`%s` query parameter required", path_param),
+		"",
+		"response",
+	)
 
-	return json_resp
+	return response.JSON()
 }

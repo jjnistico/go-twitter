@@ -1,10 +1,5 @@
 package types
 
-type ApiResponse struct {
-	Errors []Error     `json:"errors"`
-	Data   interface{} `json:"data"`
-}
-
 type Coordinates struct {
 	Type        string `json:"type"`
 	Coordinates [2]int `json:"coordinates"`
@@ -14,13 +9,6 @@ type EntitiesT struct {
 	Hashtags     []interface{} `json:"hashtags"`
 	Symbols      []interface{} `json:"symbols"`
 	UserMentions []UserMention `json:"user_mentions"`
-}
-
-type Error struct {
-	Detail  string `json:"detail"`
-	Message string `json:"message"`
-	Title   string `json:"title"`
-	Type    string `json:"type"`
 }
 
 type Geo struct {

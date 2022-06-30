@@ -1,17 +1,39 @@
 package response
 
-import "gotwitter/internal/types"
+import (
+	"encoding/json"
+)
 
-func OneOffErrorResponse(message string, title string) types.ApiResponse {
-	errors := []types.Error{{Title: title, Message: message, Detail: "", Type: "internal exception"}}
-	return types.ApiResponse{Errors: errors, Data: nil}
+type Error struct {
+	Detail     string `json:"detail"`
+	Message    string `json:"message"`
+	Title      string `json:"title"`
+	Error_type string `json:"type"`
 }
 
-func ErrorResponse(message string, title string, detail string, err_type string) types.ApiResponse {
-	errors := []types.Error{{Message: message, Title: title, Detail: detail, Type: err_type}}
-	return types.ApiResponse{Errors: errors, Data: nil}
+type Response struct {
+	Errors       []Error     `json:"errors"`
+	ResponseData interface{} `json:"data"`
 }
 
-func ApiResponseFromData(data interface{}) types.ApiResponse {
-	return types.ApiResponse{Errors: nil, Data: data}
+// type ApiResponse interface {
+// 	AddError(e Error)
+// 	ResponseData(d interface{})
+// 	JSON() (json []byte, err error)
+// }
+
+func (r *Response) AddError(title string, message string, detail string, error_type string) {
+	r.Errors = append(r.Errors,
+		Error{Title: title, Message: message, Error_type: error_type, Detail: detail},
+	)
+}
+
+func (r *Response) Data(d interface{}) {
+	r.ResponseData = d
+}
+
+func (r *Response) JSON() []byte {
+	json, _ := json.Marshal(Response{ResponseData: r.ResponseData, Errors: r.Errors})
+
+	return json
 }

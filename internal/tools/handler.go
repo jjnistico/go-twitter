@@ -1,7 +1,6 @@
 package tools
 
 import (
-	"encoding/json"
 	"gotwitter/internal/endpoint"
 	"gotwitter/internal/tools/utils/response"
 	"log"
@@ -15,7 +14,8 @@ func RequestHandler(handler http.Handler) http.Handler {
 
 		if req.Method == http.MethodOptions {
 			s_fetch := req.Header.Get("Sec-Fetch-Mode")
-			if s_fetch == "" {
+			// don't handle cors preflight here
+			if s_fetch != "cors" {
 				HandleOptionsRequest(w, req)
 				return
 			}
@@ -35,28 +35,11 @@ func HandleCors(w http.ResponseWriter, req *http.Request) {
 func HandleOptionsRequest(w http.ResponseWriter, req *http.Request) {
 	options := endpoint.GetEndpointOptions(req.URL.Path)
 
-	options_json, err := json.Marshal(
-		response.ApiResponseFromData(map[string][]string{"options": options}),
-	)
-
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-
-		json_resp, err := json.Marshal(response.OneOffErrorResponse(
-			err.Error(), "unable to serialize endpoint options",
-		))
-
-		if err != nil {
-			panic(err)
-		}
-
-		w.Write(json_resp)
-
-		return
-	}
+	response := response.Response{}
+	response.Data(map[string][]string{"options": options})
 
 	w.WriteHeader(http.StatusOK)
-	w.Write(options_json)
+	w.Write(response.JSON())
 }
 
 func LogRequest(req *http.Request) {

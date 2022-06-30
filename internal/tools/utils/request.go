@@ -1,7 +1,6 @@
 package utils
 
 import (
-	"encoding/json"
 	"fmt"
 	"gotwitter/internal/tools/utils/response"
 	"net/http"
@@ -12,16 +11,13 @@ func GetPathParameterFromQuery(w http.ResponseWriter, req *http.Request, path_pa
 
 	if len(url_path_parameter) == 0 {
 		w.WriteHeader(http.StatusBadRequest)
-		json_resp, err := json.Marshal(response.OneOffErrorResponse(
-			fmt.Sprintf("`%s` query parameter required", path_param), "invalid request",
-		))
 
-		if err != nil {
-			panic(err)
-		}
+		response := response.Response{}
+		response.AddError("invalid request",
+			fmt.Sprintf("`%s` query parameter required", path_param), "", "request",
+		)
 
-		w.Write(json_resp)
-
+		w.Write(response.JSON())
 		return ""
 	}
 

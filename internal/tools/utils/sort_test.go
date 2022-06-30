@@ -1,7 +1,7 @@
 package utils
 
 import (
-	"gotwitter/internal/tools/test"
+	"gotwitter/internal/tools/utils/test"
 	"testing"
 )
 

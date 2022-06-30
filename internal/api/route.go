@@ -1,7 +1,6 @@
 package api
 
 import (
-	"encoding/json"
 	"fmt"
 	"gotwitter/internal/tools"
 	"gotwitter/internal/tools/utils/response"
@@ -28,19 +27,16 @@ func ApiRoute(
 
 	w.WriteHeader(status_code)
 
+	var response response.Response
+
 	if err != nil {
-		json_resp, err := json.Marshal(response.OneOffErrorResponse(err.Error(), "error requesting data"))
-
-		if err != nil {
-			panic(err)
-		}
-
-		w.Write(json_resp)
-
+		response.AddError("error requesting data", err.Error(), "", "request")
+		w.Write(response.JSON())
 		return
 	}
 
-	w.Write(data)
+	response.Data(data)
+	w.Write(response.JSON())
 }
 
 func hasRequiredQueryParams(w http.ResponseWriter, req *http.Request, required_params []string) bool {
@@ -55,18 +51,12 @@ func hasRequiredQueryParams(w http.ResponseWriter, req *http.Request, required_p
 	if len(missing_query_params) > 0 {
 		w.WriteHeader(http.StatusBadRequest)
 
-		json_resp, err := json.Marshal(response.ErrorResponse(
+		response := response.Response{}
+		response.AddError("invalid request",
 			fmt.Sprintf("missing parameters: [%s]", strings.Join(missing_query_params, ", ")),
-			"invalid request",
-			"missing required query parameter",
-			req.Method,
-		))
+			"missing required query parameter", "request")
 
-		if err != nil {
-			panic(err)
-		}
-
-		w.Write(json_resp)
+		w.Write(response.JSON())
 		return false
 	}
 	return true
