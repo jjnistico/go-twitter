@@ -11,28 +11,28 @@ import (
 func GetTweets(w http.ResponseWriter, req *http.Request) {
 	response := ApiRequest(endpoint.Tweets, http.MethodGet, req.URL.Query(), []string{"ids"}, nil)
 	w.WriteHeader(response.Status())
-	w.Write(response.JSON())
+	w.Write(response.ByteData())
 }
 
 // https://developer.twitter.com/en/docs/twitter-api/tweets/manage-tweets/api-reference/delete-tweets-id
 func DeleteTweet(w http.ResponseWriter, req *http.Request) {
-	tweet_id, new_params, err := utils.ExtractParameterFromQuery(req.URL.Query(), "id")
+	tweet_id, query_params, err := utils.ExtractParameterFromQuery(req.URL.Query(), "id")
 
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	response := ApiRequest(endpoint.TweetById(tweet_id), http.MethodDelete, new_params, nil, nil)
+	response := ApiRequest(endpoint.TweetById(tweet_id), http.MethodDelete, query_params, nil, nil)
 	w.WriteHeader(response.Status())
-	w.Write(response.JSON())
+	w.Write(response.ByteData())
 }
 
 // https://developer.twitter.com/en/docs/twitter-api/tweets/manage-tweets/api-reference/post-tweets
 func PostTweet(w http.ResponseWriter, req *http.Request) {
 	response := ApiRequest(endpoint.Tweets, http.MethodPost, req.URL.Query(), nil, nil)
 	w.WriteHeader(response.Status())
-	w.Write(response.JSON())
+	w.Write(response.ByteData())
 }
 
 func Tweets(w http.ResponseWriter, req *http.Request) {

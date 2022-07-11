@@ -21,7 +21,5 @@ func ApiRequest(
 
 	data, status, errors := request.Execute()
 
-	response := server.NewResponse(data, errors, status)
-
-	return response
+	return server.NewResponse(data, errors, status)
 }

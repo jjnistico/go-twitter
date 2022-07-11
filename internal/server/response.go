@@ -6,8 +6,8 @@ import (
 )
 
 type GOTResponse struct {
-	Data   interface{}    `json:",omitempty"`
-	Errors []gerror.Error `json:",omitempty"`
+	Data   interface{}    `json:"data,omitempty"`
+	Errors []gerror.Error `json:"errors,omitempty"`
 	status int
 }
 
@@ -29,6 +29,10 @@ func (r *GOTResponse) AddError(title string, message string, detail string, erro
 	r.Errors = append(r.Errors,
 		gerror.Error{Title: title, Message: message, Error_type: error_type, Detail: detail},
 	)
+}
+
+func (r *GOTResponse) ByteData() []byte {
+	return r.Data.([]byte)
 }
 
 func (r *GOTResponse) JSON() []byte {
