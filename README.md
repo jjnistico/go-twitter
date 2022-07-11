@@ -12,8 +12,6 @@ Navigate to the root directory of this project and run
 go run .
 ```
 
-A client for the front-end is on the way and will be packaged with the server in a docker container for ease of use.
-
 ## Credentials
 
 In order to use many of the features of this application, you must provide api keys for your twitter account. The easiest way to do this is to navigate to `https://developer.twitter.com/` in your browser and follow these steps:
