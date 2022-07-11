@@ -1,8 +1,8 @@
 package authorize
 
 import (
-	"fmt"
-	"gotwitter/internal/tools/oauth"
+	"gotwitter/internal/oauth"
+	"gotwitter/internal/server"
 	"net/http"
 	"os"
 )
@@ -18,10 +18,15 @@ func Callback(w http.ResponseWriter, req *http.Request) {
 
 	access_token_response, status_code, err := oauth.AccessToken(oauth_token, oauth_verifier)
 
+	w.WriteHeader(status_code)
+
+	response := server.GOTResponse{}
+
+	response.SetData(access_token_response)
+
 	if err != nil {
-		fmt.Println(err.Error())
-		w.WriteHeader(status_code)
-		w.Write([]byte(err.Error()))
+		response.AddError("oauth callback error", err.Error(), "", "oauth")
+		w.Write(response.JSON())
 		return
 	}
 
@@ -30,5 +35,5 @@ func Callback(w http.ResponseWriter, req *http.Request) {
 	os.Setenv("USER_ID", access_token_response.UserId)
 	os.Setenv("SCREEN_NAME", access_token_response.ScreenName)
 
-	w.WriteHeader(status_code)
+	w.Write(response.JSON())
 }

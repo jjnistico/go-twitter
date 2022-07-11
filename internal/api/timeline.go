@@ -2,17 +2,20 @@ package api
 
 import (
 	"gotwitter/internal/endpoint"
-	"gotwitter/internal/tools/utils"
+	"gotwitter/internal/utils"
 	"net/http"
 )
 
 // https://developer.twitter.com/en/docs/twitter-api/tweets/timelines/api-reference/get-users-id-tweets
 func GetTimelineTweets(w http.ResponseWriter, req *http.Request) {
-	user_id := utils.GetPathParameterFromQuery(w, req, "user_id")
+	user_id, new_params, err := utils.ExtractParameterFromQuery(req.URL.Query(), "user_id")
 
-	if len(user_id) == 0 {
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	ApiRoute(w, req, endpoint.TimelineTweets(user_id), http.MethodGet, nil)
+	response := ApiRequest(endpoint.TimelineTweets(user_id), http.MethodGet, new_params, nil, nil)
+	w.WriteHeader(response.Status())
+	w.Write(response.JSON())
 }

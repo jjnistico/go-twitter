@@ -2,16 +2,18 @@ package api
 
 import (
 	"gotwitter/internal/endpoint"
-	"gotwitter/internal/tools/utils"
+	"gotwitter/internal/utils"
 	"net/http"
 )
 
 func GetFollows(w http.ResponseWriter, req *http.Request) {
-	user_id := utils.GetPathParameterFromQuery(w, req, "id")
+	user_id, new_params, err := utils.ExtractParameterFromQuery(req.URL.Query(), "id")
 
-	if len(user_id) == 0 {
+	if err != nil {
 		return
 	}
 
-	ApiRoute(w, req, endpoint.FollowersById(user_id), http.MethodGet, nil)
+	response := ApiRequest(endpoint.FollowersById(user_id), http.MethodGet, new_params, nil, nil)
+	w.WriteHeader(response.Status())
+	w.Write(response.JSON())
 }

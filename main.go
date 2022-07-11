@@ -6,7 +6,7 @@ import (
 
 	"gotwitter/internal/api"
 	"gotwitter/internal/api/authorize"
-	"gotwitter/internal/tools"
+	"gotwitter/internal/server"
 
 	"github.com/joho/godotenv"
 )
@@ -34,5 +34,5 @@ func main() {
 	// timeline
 	http.HandleFunc("/api/timeline_tweets", api.GetTimelineTweets)
 
-	http.ListenAndServe(":8090", tools.RequestHandler(http.DefaultServeMux))
+	http.ListenAndServe(":8090", server.RequestHandler(http.DefaultServeMux))
 }

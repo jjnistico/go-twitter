@@ -1,63 +1,27 @@
 package api
 
 import (
-	"fmt"
-	"gotwitter/internal/tools"
-	"gotwitter/internal/tools/utils/response"
-	"net/http"
-	"strings"
+	"gotwitter/internal/server"
+	"io"
+	"net/url"
 )
 
-func ApiRoute(
-	w http.ResponseWriter,
-	req *http.Request,
-	api_endpoint string,
-	http_method string,
-	required_query_params []string) {
+func ApiRequest(
+	endpoint string,
+	method string,
+	query_params url.Values,
+	required_params []string,
+	payload io.Reader,
+) *server.GOTResponse {
+	request := server.NewRequest(endpoint, query_params, method, payload)
 
-	if len(required_query_params) > 0 {
-		has_required_params := hasRequiredQueryParams(w, req, required_query_params)
+	request.VerifyQueryParams(required_params)
 
-		if !has_required_params {
-			return
-		}
-	}
+	request.Authorize()
 
-	data, status_code, err := tools.RequestData(api_endpoint, req.URL.Query(), http_method, req.Body)
+	data, status, errors := request.Execute()
 
-	w.WriteHeader(status_code)
+	response := server.NewResponse(data, errors, status)
 
-	var response response.Response
-
-	if err != nil {
-		response.AddError("error requesting data", err.Error(), "", "request")
-		w.Write(response.JSON())
-		return
-	}
-
-	response.Data(data)
-	w.Write(response.JSON())
-}
-
-func hasRequiredQueryParams(w http.ResponseWriter, req *http.Request, required_params []string) bool {
-	missing_query_params := []string{}
-	for _, required_param := range required_params {
-		curr_query_val := req.URL.Query().Get(required_param)
-		if len(curr_query_val) == 0 {
-			missing_query_params = append(missing_query_params, required_param)
-		}
-	}
-
-	if len(missing_query_params) > 0 {
-		w.WriteHeader(http.StatusBadRequest)
-
-		response := response.Response{}
-		response.AddError("invalid request",
-			fmt.Sprintf("missing parameters: [%s]", strings.Join(missing_query_params, ", ")),
-			"missing required query parameter", "request")
-
-		w.Write(response.JSON())
-		return false
-	}
-	return true
+	return response
 }

@@ -4,28 +4,35 @@ import (
 	"net/http"
 
 	"gotwitter/internal/endpoint"
-	"gotwitter/internal/tools/utils"
+	"gotwitter/internal/utils"
 )
 
 // https://developer.twitter.com/en/docs/twitter-api/tweets/lookup/api-reference/get-tweets
 func GetTweets(w http.ResponseWriter, req *http.Request) {
-	ApiRoute(w, req, endpoint.Tweets, http.MethodGet, []string{"ids"})
+	response := ApiRequest(endpoint.Tweets, http.MethodGet, req.URL.Query(), []string{"ids"}, nil)
+	w.WriteHeader(response.Status())
+	w.Write(response.JSON())
 }
 
 // https://developer.twitter.com/en/docs/twitter-api/tweets/manage-tweets/api-reference/delete-tweets-id
 func DeleteTweet(w http.ResponseWriter, req *http.Request) {
-	tweet_id := utils.GetPathParameterFromQuery(w, req, "id")
+	tweet_id, new_params, err := utils.ExtractParameterFromQuery(req.URL.Query(), "id")
 
-	if len(tweet_id) == 0 {
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	ApiRoute(w, req, endpoint.TweetById(tweet_id), http.MethodDelete, nil)
+	response := ApiRequest(endpoint.TweetById(tweet_id), http.MethodDelete, new_params, nil, nil)
+	w.WriteHeader(response.Status())
+	w.Write(response.JSON())
 }
 
 // https://developer.twitter.com/en/docs/twitter-api/tweets/manage-tweets/api-reference/post-tweets
 func PostTweet(w http.ResponseWriter, req *http.Request) {
-	ApiRoute(w, req, endpoint.Tweets, http.MethodPost, nil)
+	response := ApiRequest(endpoint.Tweets, http.MethodPost, req.URL.Query(), nil, nil)
+	w.WriteHeader(response.Status())
+	w.Write(response.JSON())
 }
 
 func Tweets(w http.ResponseWriter, req *http.Request) {

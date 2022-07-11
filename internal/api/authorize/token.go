@@ -1,9 +1,8 @@
 package authorize
 
 import (
-	"encoding/json"
-	"fmt"
-	"gotwitter/internal/tools/oauth"
+	"gotwitter/internal/oauth"
+	"gotwitter/internal/server"
 	"net/http"
 	"os"
 )
@@ -11,23 +10,27 @@ import (
 func AuthenticateUser(w http.ResponseWriter, req *http.Request) {
 	token_response, status_code, err := oauth.RequestToken()
 
+	response := server.GOTResponse{}
+
 	if err != nil {
-		fmt.Println(err.Error())
 		w.WriteHeader(status_code)
-		w.Write([]byte(err.Error()))
+		response.AddError("error requesting token", err.Error(), "", "oauth")
+		w.Write(response.JSON())
 		return
 	}
 
 	authorize_resp, status_code, err := oauth.Authenticate(token_response.Token)
 
+	w.WriteHeader(status_code)
+
 	if err != nil {
-		fmt.Println(err.Error())
-		w.WriteHeader(status_code)
-		w.Write([]byte(err.Error()))
+		response.AddError("error authenticating user", err.Error(), "", "oauth")
+		w.Write(response.JSON())
 		return
 	}
 
-	w.Write(authorize_resp)
+	response.SetData(authorize_resp)
+	w.Write(response.JSON())
 }
 
 func AccessToken(w http.ResponseWriter, req *http.Request) {
@@ -36,25 +39,19 @@ func AccessToken(w http.ResponseWriter, req *http.Request) {
 
 	access_token_response, status_code, err := oauth.AccessToken(oauth_token, oauth_verifier)
 
+	response := server.GOTResponse{}
+
 	if err != nil {
-		fmt.Printf("Error getting access token: %s\n", err.Error())
 		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte(err.Error()))
+		response.AddError("error obtaining access token", err.Error(), "", "oauth")
+		w.Write(response.JSON())
 		return
 	}
 
 	os.Setenv("OAUTH_TOKEN", access_token_response.OAuthToken)
 	os.Setenv("OAUTH_TOKEN_SECRET", access_token_response.OAuthTokenSecret)
 
-	response, err := json.Marshal(&access_token_response)
-
-	if err != nil {
-		fmt.Printf("error marshalling access token response: %s\n", err.Error())
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte(err.Error()))
-		return
-	}
-
+	response.SetData(access_token_response)
 	w.WriteHeader(status_code)
-	w.Write(response)
+	w.Write(response.JSON())
 }

@@ -2,7 +2,7 @@ package oauth
 
 import (
 	"fmt"
-	"gotwitter/internal/tools/utils"
+	"gotwitter/internal/utils"
 	"net/http"
 	"os"
 	"strings"

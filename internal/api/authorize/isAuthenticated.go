@@ -1,7 +1,7 @@
 package authorize
 
 import (
-	"gotwitter/internal/tools/utils/response"
+	"gotwitter/internal/server"
 	"net/http"
 	"os"
 )
@@ -13,14 +13,13 @@ func IsAuthenticated(w http.ResponseWriter, req *http.Request) {
 
 	w.WriteHeader(http.StatusOK)
 
-	var response response.Response
+	var response server.GOTResponse
 
 	if len(oauth_token) > 0 && len(oauth_token_secret) > 0 {
-		response.Data(map[string]string{"authenticated": "true"})
-		w.Write(response.JSON())
-		return
+		response.SetData(map[string]string{"authenticated": "true"})
+	} else {
+		response.SetData(map[string]string{"authenticated": "false"})
 	}
 
-	response.Data(map[string]string{"authenticated": "false"})
 	w.Write(response.JSON())
 }

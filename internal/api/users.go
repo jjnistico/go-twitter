@@ -4,21 +4,26 @@ import (
 	"net/http"
 
 	"gotwitter/internal/endpoint"
-	"gotwitter/internal/tools/utils"
+	"gotwitter/internal/utils"
 )
 
 // https://developer.twitter.com/en/docs/twitter-api/users/lookup/api-reference/get-users
 func GetUsers(w http.ResponseWriter, req *http.Request) {
-	ApiRoute(w, req, endpoint.Users, http.MethodGet, nil)
+	response := ApiRequest(endpoint.Users, http.MethodGet, req.URL.Query(), []string{"ids"}, req.Body)
+	w.WriteHeader(response.Status())
+	w.Write(response.JSON())
 }
 
 // https://developer.twitter.com/en/docs/twitter-api/users/lookup/api-reference/get-users-by-username-username
 func GetUserByUsername(w http.ResponseWriter, req *http.Request) {
-	user_name := utils.GetPathParameterFromQuery(w, req, "user_name")
+	user_name, new_params, err := utils.ExtractParameterFromQuery(req.URL.Query(), "user_name")
 
-	if len(user_name) == 0 {
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	ApiRoute(w, req, endpoint.UserByUsername(user_name), http.MethodGet, nil)
+	response := ApiRequest(endpoint.UserByUsername(user_name), http.MethodGet, new_params, nil, nil)
+	w.WriteHeader(response.Status())
+	w.Write(response.JSON())
 }
