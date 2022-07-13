@@ -20,7 +20,7 @@ func main() {
 	got_client := client.New()
 
 	tweets_resp := got_client.Tweets.Get(api.GetTweetsOptions{
-		Ids: []string{"32", "123452352", "328428943"},
+		Ids: []string{"32", "123452352", "328428943", "234235"},
 		Expansions: []string{
 			"attachments.poll_ids",
 			"author_id",
@@ -36,5 +36,7 @@ func main() {
 		fmt.Println(terr)
 	}
 
-	fmt.Printf("%+v\n", tweets_resp.Data)
+	for _, tweet := range tweets_resp.Data {
+		fmt.Printf("%+v\n", tweet)
+	}
 }

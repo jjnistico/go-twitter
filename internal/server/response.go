@@ -9,34 +9,38 @@ type ResponseT interface {
 	types.TweetsResponse | types.UsersResponse
 }
 
-type GOTResponse[DT ResponseT] struct {
-	Data   DT             `json:"data"`
-	Errors []gerror.Error `json:"errors"`
+type GOTResponse[T ResponseT] struct {
+	data   T
+	errors []gerror.Error
 	status int
 }
 
 func NewResponse[T ResponseT](data T, errors []gerror.Error, status int) *GOTResponse[T] {
 	resp := &GOTResponse[T]{}
 
-	resp.Data = data
-	resp.Errors = errors
+	resp.data = data
+	resp.errors = errors
 	resp.status = status
 
 	return resp
 }
 
 func (r *GOTResponse[_]) AddError(title string, message string, detail string, error_type string) {
-	if r.Errors == nil {
-		r.Errors = []gerror.Error{}
+	if r.errors == nil {
+		r.errors = []gerror.Error{}
 	}
 
-	r.Errors = append(r.Errors,
+	r.errors = append(r.errors,
 		gerror.Error{Title: title, Message: message, Error_type: error_type, Detail: detail},
 	)
 }
 
-func (r *GOTResponse[T]) SetData(d T) {
-	r.Data = d
+func (r *GOTResponse[T]) Data() T {
+	return r.data
+}
+
+func (r *GOTResponse[_]) Errors() []gerror.Error {
+	return r.errors
 }
 
 func (r *GOTResponse[_]) Status() int {

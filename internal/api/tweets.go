@@ -10,7 +10,7 @@ import (
 )
 
 type GetTweetsOptions struct {
-	Ids         []string // required
+	Ids         []string
 	Expansions  []string
 	TweetFields []string
 }
@@ -30,7 +30,7 @@ func (t *Tweets) Get(options GetTweetsOptions) types.TweetsResponse {
 	request_params.Set("tweet.fields", strings.Join(options.TweetFields, ","))
 
 	response := ApiRequest[types.TweetsResponse](endpoint.Tweets, http.MethodGet, request_params, []string{"ids"}, nil)
-	return response.Data
+	return response.Data()
 }
 
 // https://developer.twitter.com/en/docs/twitter-api/tweets/lookup/api-reference/get-tweets
