@@ -1,12 +1,11 @@
 package main
 
 import (
+	"fmt"
 	"log"
-	"net/http"
 
 	"gotwitter/internal/api"
-	"gotwitter/internal/api/authorize"
-	"gotwitter/internal/server"
+	"gotwitter/internal/client"
 
 	"github.com/joho/godotenv"
 )
@@ -18,21 +17,24 @@ func main() {
 		log.Fatal("Error loading .env file")
 	}
 
-	// oauth related endpoints
-	http.HandleFunc("/callback", authorize.Callback)
-	http.HandleFunc("/authenticate", authorize.AuthenticateUser)
-	http.HandleFunc("/access_token", authorize.AccessToken)
-	http.HandleFunc("/is_authenticated", authorize.IsAuthenticated)
+	got_client := client.New()
 
-	// tweets
-	http.HandleFunc("/api/tweets", api.Tweets)
+	tweets, t_errors := got_client.Tweets.Get(api.GetTweetsOptions{
+		Ids: []string{"32", "123452352", "328428943"},
+		Expansions: []string{
+			"attachments.poll_ids",
+			"author_id",
+			"entities.mentions.username"},
+		TweetFields: []string{
+			"author_id",
+			"created_at",
+			"entities",
+		},
+	})
 
-	// users
-	http.HandleFunc("/api/users", api.GetUsers)
-	http.HandleFunc("/api/user_by_username", api.GetUserByUsername)
+	for _, terr := range t_errors {
+		fmt.Println(terr)
+	}
 
-	// timeline
-	http.HandleFunc("/api/timeline_tweets", api.GetTimelineTweets)
-
-	http.ListenAndServe(":8090", server.RequestHandler(http.DefaultServeMux))
+	fmt.Printf("%+v\n", tweets)
 }

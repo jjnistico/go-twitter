@@ -1,52 +1,65 @@
 package api
 
 import (
-	"net/http"
-
+	"encoding/json"
 	"gotwitter/internal/endpoint"
-	"gotwitter/internal/utils"
+	gerror "gotwitter/internal/error"
+	"gotwitter/internal/types"
+	"net/http"
+	"net/url"
+	"strings"
 )
 
+type GetTweetsOptions struct {
+	Ids         []string // required
+	Expansions  []string
+	TweetFields []string
+}
+
+type ITweets interface {
+	Get(request_params interface{}) (types.TweetsResponse, []gerror.Error)
+}
+
+type Tweets struct {
+}
+
+func (t *Tweets) Get(options GetTweetsOptions) (types.TweetsResponse, []gerror.Error) {
+	request_params := url.Values{}
+
+	request_params.Set("ids", strings.Join(options.Ids, ","))
+	request_params.Set("expansions", strings.Join(options.Expansions, ","))
+	request_params.Set("tweet.fields", strings.Join(options.TweetFields, ","))
+
+	response := ApiRequest(endpoint.Tweets, http.MethodGet, request_params, []string{"ids"}, nil)
+
+	if len(response.Errors) > 0 {
+		return types.TweetsResponse{}, response.Errors
+	}
+
+	var tweetsData types.TweetsResponse
+	if err := json.Unmarshal(response.Data.([]byte), &tweetsData); err != nil {
+		return types.TweetsResponse{}, []gerror.Error{{Title: "response unmarshal error", Message: "", Detail: "", Error_type: ""}}
+	}
+
+	return tweetsData, nil
+}
+
 // https://developer.twitter.com/en/docs/twitter-api/tweets/lookup/api-reference/get-tweets
-func GetTweets(w http.ResponseWriter, req *http.Request) {
-	response := ApiRequest(endpoint.Tweets, http.MethodGet, req.URL.Query(), []string{"ids"}, nil)
-	w.WriteHeader(response.Status())
-	w.Write(response.ByteData())
-}
+// func GetTweets(params url.Values) types.TweetsResponse {
+// 	response := ApiRequest(endpoint.Tweets, http.MethodGet, params, []string{"ids"}, nil)
+// 	return response.GoType.(types.TweetsResponse)
+// }
 
-// https://developer.twitter.com/en/docs/twitter-api/tweets/manage-tweets/api-reference/delete-tweets-id
-func DeleteTweet(w http.ResponseWriter, req *http.Request) {
-	tweet_id, query_params, err := utils.ExtractParameterFromQuery(req.URL.Query(), "id")
+// // https://developer.twitter.com/en/docs/twitter-api/tweets/manage-tweets/api-reference/delete-tweets-id
+// func DeleteTweet(w http.ResponseWriter, req *http.Request) {
+// 	tweet_id, query_params, err := utils.ExtractParameterFromQuery(req.URL.Query(), "id")
 
-	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
+// 	if err != nil {
+// 		w.WriteHeader(http.StatusBadRequest)
+// 		return
+// 	}
 
-	response := ApiRequest(endpoint.TweetById(tweet_id), http.MethodDelete, query_params, nil, nil)
-	w.WriteHeader(response.Status())
-	w.Write(response.ByteData())
-}
-
-// https://developer.twitter.com/en/docs/twitter-api/tweets/manage-tweets/api-reference/post-tweets
-func PostTweet(w http.ResponseWriter, req *http.Request) {
-	response := ApiRequest(endpoint.Tweets, http.MethodPost, req.URL.Query(), nil, nil)
-	w.WriteHeader(response.Status())
-	w.Write(response.ByteData())
-}
-
-func Tweets(w http.ResponseWriter, req *http.Request) {
-	switch req.Method {
-	case http.MethodGet:
-		fallthrough
-	case http.MethodOptions:
-		GetTweets(w, req)
-	case http.MethodDelete:
-		DeleteTweet(w, req)
-	case http.MethodPost:
-		PostTweet(w, req)
-	default:
-		w.WriteHeader(http.StatusMethodNotAllowed)
-		w.Write([]byte("only [GET, OPTIONS, DELETE, POST] method allowed for this endpoint"))
-	}
-}
+// 	response := ApiRequest(endpoint.TweetById(tweet_id), http.MethodDelete, query_params, nil, nil)
+// 	w.WriteHeader(response.Status())
+// 	w.Write(response.ByteData())
+// }
