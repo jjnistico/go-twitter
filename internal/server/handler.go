@@ -1,7 +1,6 @@
 package server
 
 import (
-	"gotwitter/internal/endpoint"
 	"log"
 	"net/http"
 )
@@ -32,13 +31,13 @@ func HandleCors(w http.ResponseWriter, req *http.Request) {
 }
 
 func HandleOptionsRequest(w http.ResponseWriter, req *http.Request) {
-	options := endpoint.GetEndpointOptions(req.URL.Path)
+	// options := endpoint.GetEndpointOptions(req.URL.Path)
 
-	response := GOTResponse{}
-	response.SetData(map[string][]string{"options": options})
+	// response := GOTResponse{}
+	// response.SetData(map[string][]string{"options": options})
 
-	w.WriteHeader(http.StatusOK)
-	w.Write(response.JSON())
+	// w.WriteHeader(http.StatusOK)
+	// w.Write(response.JSON())
 }
 
 func LogRequest(req *http.Request) {

@@ -1,36 +1,31 @@
 package server
 
 import (
-	"encoding/json"
 	gerror "gotwitter/internal/error"
-	"net/http"
+	"gotwitter/internal/types"
 )
 
-type GOTResponse struct {
-	Data   interface{}    `json:"data"`
+type ResponseT interface {
+	types.TweetsResponse | types.UsersResponse
+}
+
+type GOTResponse[DT ResponseT] struct {
+	Data   DT             `json:"data"`
 	Errors []gerror.Error `json:"errors"`
 	status int
 }
 
-func NewResponse(data interface{}, errors []gerror.Error, status int) *GOTResponse {
-	new_response := GOTResponse{}
+func NewResponse[T ResponseT](data T, errors []gerror.Error, status int) *GOTResponse[T] {
+	resp := &GOTResponse[T]{}
 
-	var resp GOTResponse
-	if err := json.Unmarshal(data.([]byte), &resp); err != nil {
-		new_response.Data = nil
-		new_response.AddError("error unmarshalling response", err.Error(), "", "response")
-		new_response.SetStatus(http.StatusInternalServerError)
-		return &new_response
-	}
+	resp.Data = data
+	resp.Errors = errors
+	resp.status = status
 
-	new_response.Data = resp.Data
-	new_response.Errors = resp.Errors
-	new_response.status = status
-
-	return &new_response
+	return resp
 }
 
-func (r *GOTResponse) AddError(title string, message string, detail string, error_type string) {
+func (r *GOTResponse[_]) AddError(title string, message string, detail string, error_type string) {
 	if r.Errors == nil {
 		r.Errors = []gerror.Error{}
 	}
@@ -40,28 +35,10 @@ func (r *GOTResponse) AddError(title string, message string, detail string, erro
 	)
 }
 
-func (r *GOTResponse) ByteData() []byte {
-	return r.Data.([]byte)
-}
-
-func (r *GOTResponse) JSON() []byte {
-	json, err := json.Marshal(GOTResponse{Data: r.Data, Errors: r.Errors})
-
-	if err != nil {
-		panic(err)
-	}
-
-	return json
-}
-
-func (r *GOTResponse) SetData(d interface{}) {
+func (r *GOTResponse[T]) SetData(d T) {
 	r.Data = d
 }
 
-func (r *GOTResponse) SetStatus(s int) {
-	r.status = s
-}
-
-func (r *GOTResponse) Status() int {
+func (r *GOTResponse[_]) Status() int {
 	return r.status
 }

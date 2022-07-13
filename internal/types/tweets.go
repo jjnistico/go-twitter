@@ -1,5 +1,7 @@
 package types
 
+import gerror "gotwitter/internal/error"
+
 type Attachments struct {
 	MediaKeys []string `json:"media_keys"`
 	PollIds   []string `json:"poll_ids"`
@@ -35,25 +37,28 @@ type TweetPayload struct {
 	Text                  string `json:"text"`
 }
 
+type TweetData struct {
+	ID                 string             `json:"id"`
+	Text               string             `json:"text"`
+	CreatedAt          string             `json:"created_at"` // optional fields start here
+	AuthorId           string             `json:"author_id"`
+	ConversationId     string             `json:"conversation_id"`
+	InReplyToUserId    string             `json:"in_reply_to_user_id"`
+	ReferencedTweets   []ReferencedTweets `json:"referenced_tweets"`
+	Attachments        Attachments        `json:"attachments"`
+	Geo                Geo                `json:"geo"`
+	ContextAnnotations []struct {
+		Domain struct {
+			Id          string `json:"id"`
+			Name        string `json:"name"`
+			Description string `json:"description"`
+			Entity      struct {
+			} `json:"entity"`
+		} `json:"domain"`
+	} `json:"context_annotations"`
+}
+
 type TweetsResponse struct {
-	Data []struct {
-		ID                 string             `json:"id"`
-		Text               string             `json:"text"`
-		CreatedAt          string             `json:"created_at"` // optional fields start here
-		AuthorId           string             `json:"author_id"`
-		ConversationId     string             `json:"conversation_id"`
-		InReplyToUserId    string             `json:"in_reply_to_user_id"`
-		ReferencedTweets   []ReferencedTweets `json:"referenced_tweets"`
-		Attachments        Attachments        `json:"attachments"`
-		Geo                Geo                `json:"geo"`
-		ContextAnnotations []struct {
-			Domain struct {
-				Id          string `json:"id"`
-				Name        string `json:"name"`
-				Description string `json:"description"`
-				Entity      struct {
-				} `json:"entity"`
-			} `json:"domain"`
-		} `json:"context_annotations"`
-	} `json:"data"`
+	Data   []TweetData    `json:"data"`
+	Errors []gerror.Error `json:"errors"`
 }

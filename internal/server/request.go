@@ -92,14 +92,14 @@ func (r *GOTRequest) VerifyQueryParams(required_params []string) {
 	}
 }
 
-func (r *GOTRequest) Execute() (data interface{}, status_code int, gerr []gerror.Error) {
+func (r *GOTRequest) Execute() (data interface{}, errors []gerror.Error, status int) {
 	if r.req == nil {
 		fmt.Println("request not initialized")
-		return nil, http.StatusInternalServerError, nil
+		return nil, r.Errors(), http.StatusInternalServerError
 	}
 
 	if len(r.Errors()) > 0 {
-		return nil, http.StatusInternalServerError, r.Errors()
+		return nil, r.Errors(), http.StatusInternalServerError
 	}
 
 	client := &http.Client{}
@@ -108,7 +108,7 @@ func (r *GOTRequest) Execute() (data interface{}, status_code int, gerr []gerror
 
 	if err != nil {
 		r.AddError("query execution error", err.Error(), "", "query")
-		return nil, resp.StatusCode, r.Errors()
+		return nil, r.Errors(), resp.StatusCode
 	}
 
 	defer resp.Body.Close()
@@ -117,8 +117,8 @@ func (r *GOTRequest) Execute() (data interface{}, status_code int, gerr []gerror
 
 	if err != nil {
 		r.AddError("response read error", err.Error(), "", "query")
-		return nil, http.StatusInternalServerError, r.Errors()
+		return nil, r.Errors(), http.StatusInternalServerError
 	}
 
-	return data, resp.StatusCode, nil
+	return data, nil, resp.StatusCode
 }
