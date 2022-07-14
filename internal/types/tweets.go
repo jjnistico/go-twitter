@@ -1,7 +1,5 @@
 package types
 
-import gerror "gotwitter/internal/error"
-
 type Attachments struct {
 	MediaKeys []string `json:"media_keys"`
 	PollIds   []string `json:"poll_ids"`
@@ -59,6 +57,6 @@ type TweetData struct {
 }
 
 type TweetsResponse struct {
-	Data   []TweetData    `json:"data"`
-	Errors []gerror.Error `json:"errors"`
+	Data []TweetData `json:"data"`
+	ErrorResponse
 }

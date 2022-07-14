@@ -2,11 +2,8 @@ package api
 
 import (
 	"gotwitter/internal/endpoint"
-	gerror "gotwitter/internal/error"
 	"gotwitter/internal/types"
 	"net/http"
-	"net/url"
-	"strings"
 )
 
 type GetTweetsOptions struct {
@@ -16,21 +13,25 @@ type GetTweetsOptions struct {
 }
 
 type ITweets interface {
-	Get(request_params interface{}) (types.TweetsResponse, []gerror.Error)
+	Get(request_params interface{}) (types.TweetsResponse, []types.Error)
 }
 
 type Tweets struct {
 }
 
-func (t *Tweets) Get(options GetTweetsOptions) types.TweetsResponse {
-	request_params := url.Values{}
-
-	request_params.Set("ids", strings.Join(options.Ids, ","))
-	request_params.Set("expansions", strings.Join(options.Expansions, ","))
-	request_params.Set("tweet.fields", strings.Join(options.TweetFields, ","))
-
-	response := ApiRequest[types.TweetsResponse](endpoint.Tweets, http.MethodGet, request_params, []string{"ids"}, nil)
-	return response.Data()
+// https://developer.twitter.com/en/docs/twitter-api/tweets/lookup/api-reference/get-tweets
+//   Parameters:
+//     `ids` []string - array of ids to query **REQUIRED**
+//     `expansions` []string - array of expansions (see link for available expansions)
+//     `media.fields` []string - array of media fields to include **NOTE** requires attachments.media_keys expansion
+//     `place.fields` []string - array of place fields to include **NOTE** requires geo.place_id expansion
+//     `poll.fields`  []string - array of poll fields to include **NOTE** requires attachment.poll_ids expansion
+//     `tweet.fields` []string - array of tweet fields to include
+//     `user.fields`  []string - array of user fields to include  **NOTE** requires certain expansions (see link)
+//
+func (t *Tweets) Get(options types.GOTOptions) ([]types.TweetData, []types.Error) {
+	response := ApiRequest[types.TweetsResponse](endpoint.Tweets, http.MethodGet, options, []string{"ids"}, nil)
+	return response.Data().Data, response.Data().Errors
 }
 
 // https://developer.twitter.com/en/docs/twitter-api/tweets/lookup/api-reference/get-tweets

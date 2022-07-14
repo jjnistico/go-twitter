@@ -2,15 +2,11 @@
 
 ### _This is a WIP_
 
-Go-Twitter is a go rest server that can be used to programatically read, write, delete tweets in addition to other functionality like liking/retweeting
+Go-Twitter is a go client that can be used to programatically read, write, delete tweets in addition to other functionality like liking/retweeting
 
 ## Installation
 
-Navigate to the root directory of this project and run
-
-```
-go run .
-```
+Coming Soon: After version 1.0, this will be packaged into a go module that can be installed with `go install`
 
 ## Credentials
 
@@ -24,16 +20,4 @@ In order to use many of the features of this application, you must provide api k
 
 4) Create a file named `.env` in the root directory of this application following the example of `.env.sample`. Fill in the API key and Secret generated in the previous step in the `.env` file.
 
-5) The API Key and Secret are used to identify your app. You can use these two keys to authenticate your app for the oauth protocol in order to have any user sign in with the oauth protocol and generate an access token for api requests. However, if you just want to use the app for yourself, the quickest and easiest way to do this would be to generate an Access Token and Secret within the twitter developer portal. Under your application name, click `Keys and tokens` then click `Generate` next to `Access Token and Secret`. Copy these to your .env file under `OAUTH_TOKEN` and `OAUTH_SECRET`. You are now ready to make requests to the twitter api!
-
-**NOTE**: Make sure to restart the application (kill the process and rerun `go run .`) after updating your .env file. They are loaded into the application context on initial run.
-
-## Current Endpoints
-
-`/callback`: used for the oauth protocol implementation. Twitter calls this endpoint with access token query params
-
-`/authenticate`: implements the 3-step oauth protocol and stores access tokens in environment variables
-
-`api/tweets`: returns tweets for a comma-separated list of tweet ids, passed as query params `ids=`
-
-`api/users`: returns user data 
+5) The API Key and Secret are used to identify your app. The quickest and easiest way to authenticate requests to the twitter api from within this client would be to generate an Access Token and Secret within the twitter developer portal. Under your application name, click `Keys and tokens` then click `Generate` next to `Access Token and Secret`. Copy these to your .env file under `OAUTH_TOKEN` and `OAUTH_SECRET`. You are now ready to make requests to the twitter api!

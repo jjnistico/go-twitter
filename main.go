@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"log"
 
-	"gotwitter/internal/api"
 	"gotwitter/internal/client"
 
 	"github.com/joho/godotenv"
@@ -19,24 +18,20 @@ func main() {
 
 	got_client := client.New()
 
-	tweets_resp := got_client.Tweets.Get(api.GetTweetsOptions{
-		Ids: []string{"32", "123452352", "328428943", "234235"},
-		Expansions: []string{
-			"attachments.poll_ids",
-			"author_id",
-			"entities.mentions.username"},
-		TweetFields: []string{
-			"author_id",
-			"created_at",
-			"entities",
-		},
+	tweets, errors := got_client.Tweets.Get(map[string][]string{
+		"ids":          {"32", "12345462", "324235235", "2342"},
+		"expansions":   {"attachments.poll_ids", "author_id", "entities.mentions.username"},
+		"tweet.fields": {"author_id", "created_at", "entities"},
 	})
 
-	for _, terr := range tweets_resp.Errors {
-		fmt.Println(terr)
+	for _, terr := range errors {
+		fmt.Println(terr.Title)
+		fmt.Println()
 	}
 
-	for _, tweet := range tweets_resp.Data {
-		fmt.Printf("%+v\n", tweet)
+	fmt.Println("--------")
+
+	for _, tweet := range tweets {
+		fmt.Println(tweet.AuthorId, tweet.ID, tweet.Text)
 	}
 }

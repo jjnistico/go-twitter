@@ -7,12 +7,15 @@ type UserMention struct {
 	IDString   string `json:"id_str"`
 }
 
+type UserData struct {
+	ID       string `json:"id"`
+	Name     string `json:"name"`
+	Username string `json:"username"`
+}
+
 type UsersResponse struct {
-	Data []struct {
-		ID       string `json:"id"`
-		Name     string `json:"name"`
-		Username string `json:"username"`
-	} `json:"data"`
+	Data []UserData `json:"data"`
+	ErrorResponse
 }
 
 type UserTimelineResponse struct {

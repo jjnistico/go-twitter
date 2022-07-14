@@ -11,6 +11,13 @@ type EntitiesT struct {
 	UserMentions []UserMention `json:"user_mentions"`
 }
 
+type Error struct {
+	Detail     string `json:"detail"`
+	Message    string `json:"value"`
+	Title      string `json:"title"`
+	Error_type string `json:"type"`
+}
+
 type Geo struct {
 	Coordinates Coordinates `json:"coordinates"`
 	PlaceId     string      `json:"place_id"`
@@ -25,3 +32,9 @@ type Poll struct {
 	DurationMinutes uint     `json:"duration_minutes"`
 	Options         []string `json:"options"`
 }
+
+type ErrorResponse struct {
+	Errors []Error `json:"errors"`
+}
+
+type GOTOptions = map[string][]string

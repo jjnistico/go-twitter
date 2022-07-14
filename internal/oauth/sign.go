@@ -7,19 +7,17 @@ import (
 )
 
 // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // //
-//                                                                                           //
 // SignRequest generates a parameter string that can be included                             //
 // with a request to get authorized for the twitter api.                                     //
 // see: https://developer.twitter.com/en/docs/authentication/oauth-1-0a/creating-a-signature //
 //                                                                                           //
 // Required parts of the param string (must be in alphabetical order):                       //
-// oauth_consumer_key: string - the applications api_key                                     //
-// oauth_nonce: string - unique string generated for every request                           //
-// oauth_signature_method: string - HMAC-SHA1                                                //
-// oauth_timestamp: string - unix timestamp                                                  //
-// oauth_token: string - token returned from /authentication                                 //
-// oauth_version: string - should always be 1.0 for the Twitter API                          //
-//                                                                                           //
+// `oauth_consumer_key`: string - the applications api_key                                     //
+// `oauth_nonce`: string - unique string generated for every request                           //
+// `oauth_signature_method`: string - HMAC-SHA1                                                //
+// `oauth_timestamp`: string - unix timestamp                                                  //
+// `oauth_token`: string - token returned from /authentication                                 //
+// `oauth_version`: string - should always be 1.0 for the Twitter API                          //
 // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // //
 func GetRequestSignature(
 	signature_params []map[string]string,

@@ -2,30 +2,41 @@ package api
 
 import (
 	"encoding/json"
-	"gotwitter/internal/server"
+	"gotwitter/internal/network"
+	"gotwitter/internal/types"
 	"io"
 	"net/url"
+	"strings"
 )
 
-func ApiRequest[T server.ResponseT](
+func ApiRequest[T network.ResponseData](
 	endpoint string,
 	method string,
-	query_params url.Values,
+	options types.GOTOptions,
 	required_params []string,
 	payload io.Reader,
-) *server.GOTResponse[T] {
-	request := server.NewRequest(endpoint, query_params, method, payload)
+) *network.GOTResponse[T] {
+	query_params := url.Values{}
+
+	for k, v := range options {
+		query_params.Set(k, strings.Join(v, ","))
+	}
+
+	request := network.NewRequest(endpoint, query_params, method, payload)
 
 	request.VerifyQueryParams(required_params)
 
 	request.Authorize()
 
-	data, errors, status_code := request.Execute()
+	data, errors := request.Execute()
 
-	var um_data T
-	if err := json.Unmarshal(data.([]byte), &um_data); err != nil {
-		panic(err)
+	var structured_data T
+
+	if len(errors) == 0 {
+		if err := json.Unmarshal(data.([]byte), &structured_data); err != nil {
+			panic(err.Error())
+		}
 	}
 
-	return server.NewResponse(um_data, errors, status_code)
+	return network.NewResponse(structured_data, errors)
 }

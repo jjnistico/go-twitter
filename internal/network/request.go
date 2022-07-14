@@ -1,9 +1,9 @@
-package server
+package network
 
 import (
 	"fmt"
-	gerror "gotwitter/internal/error"
 	"gotwitter/internal/oauth"
+	"gotwitter/internal/types"
 	"gotwitter/internal/utils"
 	"io"
 	"io/ioutil"
@@ -17,20 +17,20 @@ type GOTRequest struct {
 	http_method  string
 	payload      io.Reader
 	req          *http.Request
-	errors       []gerror.Error
+	errors       []types.Error
 }
 
 func (r *GOTRequest) AddError(title string, message string, detail string, error_type string) {
-	gerr := gerror.Error{Title: title, Message: message, Detail: detail, Error_type: error_type}
+	gerr := types.Error{Title: title, Message: message, Detail: detail, Error_type: error_type}
 
 	if r.errors == nil {
-		r.errors = []gerror.Error{}
+		r.errors = []types.Error{}
 	}
 
 	r.errors = append(r.errors, gerr)
 }
 
-func (r *GOTRequest) Errors() []gerror.Error {
+func (r *GOTRequest) Errors() []types.Error {
 	return r.errors
 }
 
@@ -77,8 +77,7 @@ func NewRequest(
 
 func (r *GOTRequest) Authorize() {
 	if r.req == nil {
-		fmt.Println("request not initialized")
-		return
+		panic("request not initialized")
 	}
 
 	oauth.AuthorizeRequest(r.req)
@@ -92,23 +91,26 @@ func (r *GOTRequest) VerifyQueryParams(required_params []string) {
 	}
 }
 
-func (r *GOTRequest) Execute() (data interface{}, errors []gerror.Error, status int) {
+func (r *GOTRequest) Execute() (data interface{}, errors []types.Error) {
 	if r.req == nil {
-		fmt.Println("request not initialized")
-		return nil, r.Errors(), http.StatusInternalServerError
+		panic("request not initialized")
 	}
 
 	if len(r.Errors()) > 0 {
-		return nil, r.Errors(), http.StatusInternalServerError
+		return nil, r.Errors()
 	}
 
-	client := &http.Client{}
+	client := GetHttpClient()
 
 	resp, err := client.Do(r.req)
 
 	if err != nil {
-		r.AddError("query execution error", err.Error(), "", "query")
-		return nil, r.Errors(), resp.StatusCode
+		panic("query execution error")
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		r.AddError(resp.Status, "twitter api status response not ok", fmt.Sprint(resp.StatusCode), "query")
+		return nil, r.Errors()
 	}
 
 	defer resp.Body.Close()
@@ -116,9 +118,8 @@ func (r *GOTRequest) Execute() (data interface{}, errors []gerror.Error, status 
 	data, err = ioutil.ReadAll(resp.Body)
 
 	if err != nil {
-		r.AddError("response read error", err.Error(), "", "query")
-		return nil, r.Errors(), http.StatusInternalServerError
+		panic("error reading response body from request")
 	}
 
-	return data, nil, resp.StatusCode
+	return data, nil
 }

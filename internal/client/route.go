@@ -1,8 +1,6 @@
 package client
 
-import (
-	"gotwitter/internal/api"
-)
+import "gotwitter/internal/api"
 
 type GOTClient struct {
 	Tweets *api.Tweets
