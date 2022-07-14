@@ -35,10 +35,30 @@ type TweetPayload struct {
 	Text                  string `json:"text"`
 }
 
+type CreateTweet struct {
+	Id   string `json:"id"`
+	Text string `json:"text"`
+}
+
+type CreateTweetResponse struct {
+	Data CreateTweet `json:"data"`
+	ErrorResponse
+}
+
+type DeleteTweet struct {
+	Deleted bool `json:"deleted"`
+}
+
+type DeleteTweetResponse struct {
+	Data DeleteTweet `json:"data"`
+	ErrorResponse
+}
+
 type TweetData struct {
-	ID                 string             `json:"id"`
-	Text               string             `json:"text"`
-	CreatedAt          string             `json:"created_at"` // optional fields start here
+	ID   string `json:"id"`
+	Text string `json:"text"`
+	// optional fields are below
+	CreatedAt          string             `json:"created_at"`
 	AuthorId           string             `json:"author_id"`
 	ConversationId     string             `json:"conversation_id"`
 	InReplyToUserId    string             `json:"in_reply_to_user_id"`

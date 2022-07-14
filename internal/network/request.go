@@ -12,12 +12,8 @@ import (
 )
 
 type GOTRequest struct {
-	endpoint     string
-	query_params url.Values
-	http_method  string
-	payload      io.Reader
-	req          *http.Request
-	errors       []types.Error
+	req    *http.Request
+	errors []types.Error
 }
 
 func (r *GOTRequest) AddError(title string, message string, detail string, error_type string) {
@@ -42,24 +38,15 @@ func NewRequest(
 ) *GOTRequest {
 	new_request := GOTRequest{}
 
-	new_request.endpoint = endpoint
-	new_request.query_params = query_params
-	new_request.http_method = http_method
-	new_request.payload = payload
-
-	req, err := http.NewRequest(
-		new_request.http_method,
-		new_request.endpoint+"?"+new_request.query_params.Encode(),
-		new_request.payload,
-	)
+	req, err := http.NewRequest(http_method, endpoint+"?"+query_params.Encode(), payload)
 
 	if err != nil {
 		new_request.AddError(
 			"request generation error",
 			fmt.Sprintf(
 				"error generating request for endpoint: %s | query: %s -> %s",
-				new_request.endpoint,
-				new_request.query_params.Encode(),
+				endpoint,
+				query_params.Encode(),
 				err.Error(),
 			),
 			"",
@@ -67,7 +54,7 @@ func NewRequest(
 		return &new_request
 	}
 
-	if new_request.payload != nil {
+	if payload != nil {
 		req.Header.Add("content-type", "application/json")
 	}
 
@@ -108,8 +95,9 @@ func (r *GOTRequest) Execute() (data interface{}, errors []types.Error) {
 		panic("query execution error")
 	}
 
-	if resp.StatusCode != http.StatusOK {
-		r.AddError(resp.Status, "twitter api status response not ok", fmt.Sprint(resp.StatusCode), "query")
+	// valid range 200-299
+	if resp.StatusCode < http.StatusOK || resp.StatusCode >= http.StatusMultipleChoices {
+		r.AddError(resp.Status, "twitter api response status", fmt.Sprint(resp.StatusCode), "query")
 		return nil, r.Errors()
 	}
 

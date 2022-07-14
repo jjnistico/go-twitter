@@ -38,3 +38,5 @@ type ErrorResponse struct {
 }
 
 type GOTOptions = map[string][]string
+
+type GOTPayload = map[string]string

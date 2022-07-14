@@ -12,10 +12,6 @@ type GetTweetsOptions struct {
 	TweetFields []string
 }
 
-type ITweets interface {
-	Get(request_params interface{}) (types.TweetsResponse, []types.Error)
-}
-
 type Tweets struct {
 }
 
@@ -23,33 +19,47 @@ type Tweets struct {
 //   Parameters:
 //     `ids` []string - array of ids to query **REQUIRED**
 //     `expansions` []string - array of expansions (see link for available expansions)
-//     `media.fields` []string - array of media fields to include **NOTE** requires attachments.media_keys expansion
-//     `place.fields` []string - array of place fields to include **NOTE** requires geo.place_id expansion
-//     `poll.fields`  []string - array of poll fields to include **NOTE** requires attachment.poll_ids expansion
-//     `tweet.fields` []string - array of tweet fields to include
-//     `user.fields`  []string - array of user fields to include  **NOTE** requires certain expansions (see link)
+//     `media.fields` []string - array of media fields to include. Requires `attachments.media_keys` expansion
+//     `place.fields` []string - array of place fields to include. Requires `geo.place_id` expansion
+//     `poll.fields`  []string - array of poll fields to include. Requires attachment.poll_ids` expansion
+//     `tweet.fields` []string - array of tweet fields to include.
+//     `user.fields`  []string - array of user fields to include. Requires certain expansions (see link)
 //
 func (t *Tweets) Get(options types.GOTOptions) ([]types.TweetData, []types.Error) {
-	response := ApiRequest[types.TweetsResponse](endpoint.Tweets, http.MethodGet, options, []string{"ids"}, nil)
-	return response.Data().Data, response.Data().Errors
+	response, errors := apiRequest[types.TweetsResponse](endpoint.Tweets, http.MethodGet, options, []string{"ids"}, nil)
+	if errors != nil {
+		return []types.TweetData{}, errors
+	}
+	return response.Data, response.Errors
 }
 
-// https://developer.twitter.com/en/docs/twitter-api/tweets/lookup/api-reference/get-tweets
-// func GetTweets(params url.Values) types.TweetsResponse {
-// 	response := ApiRequest(endpoint.Tweets, http.MethodGet, params, []string{"ids"}, nil)
-// 	return response.GoType.(types.TweetsResponse)
-// }
+// https://developer.twitter.com/en/docs/twitter-api/tweets/manage-tweets/api-reference/post-tweets
+// Payload parameters:
+//    `text` string - text of the tweet being created **REQUIRED** if `media.media_ids` is not present
+//    `direct_message_deep_link` string - tweets a link directly to a Direct Message conversation with an account
+//    `for_super_followers_only` bool - allows you to tweet exclusively to Super Followers
+//    `geo.place_id` string - place id being attached to the Tweet for geo location
+//    `media.media_ids` []string - a list of media ids being attached to the tweet. Required if request includes `tagged_user_ids`
+//    `media.tagged_user_ids` []string - a list of user ids being tagged in the Tweet with media
+//    `poll.duration_minutes` int - Duration of the poll in minutes for a Tweet with a poll
+//
+func (t *Tweets) Create(options types.GOTPayload) (types.CreateTweet, []types.Error) {
+	response, errors := apiRequest[types.CreateTweetResponse](endpoint.Tweets, http.MethodPost, nil, nil, options)
+	if errors != nil {
+		return types.CreateTweet{}, errors
+	}
+	return response.Data, response.Errors
+}
 
-// // https://developer.twitter.com/en/docs/twitter-api/tweets/manage-tweets/api-reference/delete-tweets-id
-// func DeleteTweet(w http.ResponseWriter, req *http.Request) {
-// 	tweet_id, query_params, err := utils.ExtractParameterFromQuery(req.URL.Query(), "id")
-
-// 	if err != nil {
-// 		w.WriteHeader(http.StatusBadRequest)
-// 		return
-// 	}
-
-// 	response := ApiRequest(endpoint.TweetById(tweet_id), http.MethodDelete, query_params, nil, nil)
-// 	w.WriteHeader(response.Status())
-// 	w.Write(response.ByteData())
-// }
+// https://developer.twitter.com/en/docs/twitter-api/tweets/manage-tweets/api-reference/delete-tweets-id
+// Payload parameters:
+//    `id` string - the id of the tweet to be deleted
+//
+func (t *Tweets) Delete(options types.GOTPayload) (types.DeleteTweet, []types.Error) {
+	tweet_id := options["id"]
+	response, errors := apiRequest[types.DeleteTweetResponse](endpoint.TweetById(tweet_id), http.MethodDelete, nil, nil, nil)
+	if errors != nil {
+		return types.DeleteTweet{}, errors
+	}
+	return response.Data, response.Errors
+}
