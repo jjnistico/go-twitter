@@ -1,113 +1,73 @@
 package network
 
 import (
-	"fmt"
-	"gotwitter/internal/oauth"
+	"bytes"
+	"encoding/json"
 	"gotwitter/internal/types"
-	"gotwitter/internal/utils"
-	"io"
-	"io/ioutil"
 	"net/http"
 	"net/url"
+	"strings"
 )
 
-type GOTRequest struct {
-	req    *http.Request
-	errors []types.Error
-}
-
-func (r *GOTRequest) AddError(title string, message string, detail string, error_type string) {
-	gerr := types.Error{Title: title, Message: message, Detail: detail, Error_type: error_type}
-
-	if r.errors == nil {
-		r.errors = []types.Error{}
-	}
-
-	r.errors = append(r.errors, gerr)
-}
-
-func (r *GOTRequest) Errors() []types.Error {
-	return r.errors
-}
-
-func NewRequest(
+func Get[T types.ResponseData](
 	endpoint string,
-	query_params url.Values,
-	http_method string,
-	payload io.Reader,
-) *GOTRequest {
-	new_request := GOTRequest{}
-
-	req, err := http.NewRequest(http_method, endpoint+"?"+query_params.Encode(), payload)
-
-	if err != nil {
-		new_request.AddError(
-			"request generation error",
-			fmt.Sprintf(
-				"error generating request for endpoint: %s | query: %s -> %s",
-				endpoint,
-				query_params.Encode(),
-				err.Error(),
-			),
-			"",
-			"request")
-		return &new_request
-	}
-
-	if payload != nil {
-		req.Header.Add("content-type", "application/json")
-	}
-
-	new_request.req = req
-	return &new_request
+	options types.GOTOptions,
+	required_params []string,
+) (T, []types.Error) {
+	return apiRequest[T](endpoint, http.MethodGet, options, required_params, nil)
 }
 
-func (r *GOTRequest) Authorize() {
-	if r.req == nil {
-		panic("request not initialized")
-	}
-
-	oauth.AuthorizeRequest(r.req)
+func Post[T types.ResponseData](endpoint string, payload types.GOTPayload) (T, []types.Error) {
+	return apiRequest[T](endpoint, http.MethodPost, nil, nil, payload)
 }
 
-func (r *GOTRequest) VerifyQueryParams(required_params []string) {
-	query_params := r.req.URL.Query()
-
-	if err := utils.VerifyRequiredQueryParams(query_params, required_params); err != nil {
-		r.AddError("query parameter error", err.Error(), "", "request")
-	}
+func Delete[T types.ResponseData](endpoint string) (T, []types.Error) {
+	return apiRequest[T](endpoint, http.MethodDelete, nil, nil, nil)
 }
 
-func (r *GOTRequest) Execute() (data interface{}, errors []types.Error) {
-	if r.req == nil {
-		panic("request not initialized")
+func apiRequest[T types.ResponseData](
+	endpoint string,
+	method string,
+	options types.GOTOptions,
+	required_params []string,
+	payload types.GOTPayload,
+) (T, []types.Error) {
+	// map options to url.Values for http request
+	query_params := url.Values{}
+	for k, v := range options {
+		query_params.Set(k, strings.Join(v, ","))
 	}
 
-	if len(r.Errors()) > 0 {
-		return nil, r.Errors()
+	// create buffer for payload for post requests
+	payload_buf := new(bytes.Buffer)
+	if err := json.NewEncoder(payload_buf).Encode(payload); err != nil {
+		panic(err.Error())
 	}
 
-	client := GetHttpClient()
-
-	resp, err := client.Do(r.req)
-
-	if err != nil {
-		panic("query execution error")
+	// include buffer for post requests, nil otherwise (breaks if you pass *nil bytes.Buffer to NewRequest)
+	var request *GOTRequest
+	if method == http.MethodPost {
+		request = NewRequest(endpoint, query_params, method, payload_buf)
+	} else {
+		request = NewRequest(endpoint, query_params, method, nil)
 	}
 
-	// valid range 200-299
-	if resp.StatusCode < http.StatusOK || resp.StatusCode >= http.StatusMultipleChoices {
-		r.AddError(resp.Status, "twitter api response status", fmt.Sprint(resp.StatusCode), "query")
-		return nil, r.Errors()
+	if required_params != nil {
+		request.VerifyQueryParams(required_params)
 	}
 
-	defer resp.Body.Close()
+	// this creates the request signature and oauth header and adds it as the `Authorization` request header
+	request.Authorize()
 
-	data, err = ioutil.ReadAll(resp.Body)
+	data, errors := request.Execute()
 
-	if err != nil {
-		panic("error reading response body from request")
+	// unmarshal byte array to a GO type if no errors from execution of query, else return errors
+	var structured_data T
+	if len(errors) == 0 {
+		if err := json.Unmarshal(data.([]byte), &structured_data); err != nil {
+			panic(err.Error())
+		}
 	}
 
-	return data, nil
+	return structured_data, errors
 }

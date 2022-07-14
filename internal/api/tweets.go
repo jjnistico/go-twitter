@@ -2,8 +2,8 @@ package api
 
 import (
 	"gotwitter/internal/endpoint"
+	"gotwitter/internal/network"
 	"gotwitter/internal/types"
-	"net/http"
 )
 
 type GetTweetsOptions struct {
@@ -26,7 +26,7 @@ type Tweets struct {
 //     `user.fields`  []string - array of user fields to include. Requires certain expansions (see link)
 //
 func (t *Tweets) Get(options types.GOTOptions) ([]types.TweetData, []types.Error) {
-	response, errors := apiRequest[types.TweetsResponse](endpoint.Tweets, http.MethodGet, options, []string{"ids"}, nil)
+	response, errors := network.Get[types.TweetsResponse](endpoint.Tweets, options, []string{"ids"})
 	if errors != nil {
 		return []types.TweetData{}, errors
 	}
@@ -43,8 +43,8 @@ func (t *Tweets) Get(options types.GOTOptions) ([]types.TweetData, []types.Error
 //    `media.tagged_user_ids` []string - a list of user ids being tagged in the Tweet with media
 //    `poll.duration_minutes` int - Duration of the poll in minutes for a Tweet with a poll
 //
-func (t *Tweets) Create(options types.GOTPayload) (types.CreateTweet, []types.Error) {
-	response, errors := apiRequest[types.CreateTweetResponse](endpoint.Tweets, http.MethodPost, nil, nil, options)
+func (t *Tweets) Create(payload types.GOTPayload) (types.CreateTweet, []types.Error) {
+	response, errors := network.Post[types.CreateTweetResponse](endpoint.Tweets, payload)
 	if errors != nil {
 		return types.CreateTweet{}, errors
 	}
@@ -55,9 +55,9 @@ func (t *Tweets) Create(options types.GOTPayload) (types.CreateTweet, []types.Er
 // Payload parameters:
 //    `id` string - the id of the tweet to be deleted
 //
-func (t *Tweets) Delete(options types.GOTPayload) (types.DeleteTweet, []types.Error) {
-	tweet_id := options["id"]
-	response, errors := apiRequest[types.DeleteTweetResponse](endpoint.TweetById(tweet_id), http.MethodDelete, nil, nil, nil)
+func (t *Tweets) Delete(payload types.GOTPayload) (types.DeleteTweet, []types.Error) {
+	tweet_id := payload["id"]
+	response, errors := network.Delete[types.DeleteTweetResponse](endpoint.TweetById(tweet_id))
 	if errors != nil {
 		return types.DeleteTweet{}, errors
 	}
