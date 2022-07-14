@@ -9,9 +9,10 @@ import (
 	"time"
 )
 
+// see https://developer.twitter.com/en/docs/authentication/oauth-1-0a for oauth 1.0 auth flow used below
 func AuthorizeRequest(req *http.Request) {
-	oauth_consumer_key := os.Getenv("API_KEY")
-	oauth_token := os.Getenv("OAUTH_TOKEN")
+	oauth_consumer_key := os.Getenv("TWITTER_API_KEY")
+	oauth_token := os.Getenv("TWITTER_OAUTH_TOKEN")
 	nonce := generateNonce(14)
 	timestamp := time.Now().Unix()
 

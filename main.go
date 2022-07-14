@@ -17,46 +17,22 @@ func main() {
 		log.Fatal("Error loading .env file")
 	}
 
-	got_client := got.New()
+	got_client := got.NewClient()
 
-	// tweets, errors := got_client.Tweets.Get(t.GOTOptions{
-	// 	"ids":          {"32", "12345462", "324235235", "2342"},
-	// 	"expansions":   {"attachments.poll_ids", "author_id", "entities.mentions.username"},
-	// 	"tweet.fields": {"author_id", "created_at", "entities"},
-	// })
+	users, errors := got_client.Users.Get(t.GOTOptions{
+		"ids":          {"1531882200"},
+		"expansions":   {"pinned_tweet_id"},
+		"tweet.fields": {"author_id", "id"},
+		"user.fields":  {"created_at", "id", "description", "name", "username", "verified"},
+	})
 
-	// for _, terr := range errors {
-	// 	fmt.Println(terr.Title)
-	// 	fmt.Println()
-	// }
-
-	// fmt.Println("--------")
-
-	// for _, tweet := range tweets {
-	// 	fmt.Println(tweet.AuthorId, tweet.ID, tweet.Text)
-	// }
-
-	// tweet_post, errors := got_client.Tweets.Create(t.GOTPayload{
-	// 	"text": "Test",
-	// })
-
-	// for _, terr := range errors {
-	// 	fmt.Println(terr.Title)
-	// 	fmt.Println()
-	// }
-
-	// fmt.Println("---------")
-
-	// fmt.Println(tweet_post.Id, tweet_post.Text)
-
-	tweet_del, errors := got_client.Tweets.Delete(t.GOTPayload{"id": "23"})
-
-	for _, terr := range errors {
-		fmt.Println(terr.Title)
-		fmt.Println()
+	for _, user := range users {
+		fmt.Printf("%+v\n", user)
 	}
 
-	fmt.Println("--------")
+	fmt.Println()
 
-	fmt.Println(tweet_del.Deleted)
+	for _, error := range errors {
+		fmt.Printf("%+v\n", error)
+	}
 }

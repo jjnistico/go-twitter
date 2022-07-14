@@ -33,6 +33,11 @@ type Poll struct {
 	Options         []string `json:"options"`
 }
 
+type StartEnd struct {
+	Start int `json:"start"`
+	End   int `json:"end"`
+}
+
 type ErrorResponse struct {
 	Errors []Error `json:"errors"`
 }
