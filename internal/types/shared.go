@@ -1,5 +1,7 @@
 package types
 
+type CustomBool bool
+
 type Coordinates struct {
 	Type        string `json:"type"`
 	Coordinates [2]int `json:"coordinates"`
