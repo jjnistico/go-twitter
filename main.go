@@ -1,12 +1,11 @@
 package main
 
 import (
+	"fmt"
 	"log"
-	"net/http"
 
-	"gotwitter/internal/api"
-	"gotwitter/internal/api/authorize"
-	"gotwitter/internal/tools"
+	got "gotwitter/internal"
+	t "gotwitter/internal/types"
 
 	"github.com/joho/godotenv"
 )
@@ -18,21 +17,46 @@ func main() {
 		log.Fatal("Error loading .env file")
 	}
 
-	// oauth related endpoints
-	http.HandleFunc("/callback", authorize.Callback)
-	http.HandleFunc("/authenticate", authorize.AuthenticateUser)
-	http.HandleFunc("/access_token", authorize.AccessToken)
-	http.HandleFunc("/is_authenticated", authorize.IsAuthenticated)
+	got_client := got.New()
 
-	// tweets
-	http.HandleFunc("/api/tweets", api.Tweets)
+	// tweets, errors := got_client.Tweets.Get(t.GOTOptions{
+	// 	"ids":          {"32", "12345462", "324235235", "2342"},
+	// 	"expansions":   {"attachments.poll_ids", "author_id", "entities.mentions.username"},
+	// 	"tweet.fields": {"author_id", "created_at", "entities"},
+	// })
 
-	// users
-	http.HandleFunc("/api/users", api.GetUsers)
-	http.HandleFunc("/api/user_by_username", api.GetUserByUsername)
+	// for _, terr := range errors {
+	// 	fmt.Println(terr.Title)
+	// 	fmt.Println()
+	// }
 
-	// timeline
-	http.HandleFunc("/api/timeline_tweets", api.GetTimelineTweets)
+	// fmt.Println("--------")
 
-	http.ListenAndServe(":8090", tools.RequestHandler(http.DefaultServeMux))
+	// for _, tweet := range tweets {
+	// 	fmt.Println(tweet.AuthorId, tweet.ID, tweet.Text)
+	// }
+
+	// tweet_post, errors := got_client.Tweets.Create(t.GOTPayload{
+	// 	"text": "Test",
+	// })
+
+	// for _, terr := range errors {
+	// 	fmt.Println(terr.Title)
+	// 	fmt.Println()
+	// }
+
+	// fmt.Println("---------")
+
+	// fmt.Println(tweet_post.Id, tweet_post.Text)
+
+	tweet_del, errors := got_client.Tweets.Delete(t.GOTPayload{"id": "23"})
+
+	for _, terr := range errors {
+		fmt.Println(terr.Title)
+		fmt.Println()
+	}
+
+	fmt.Println("--------")
+
+	fmt.Println(tweet_del.Deleted)
 }

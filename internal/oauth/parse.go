@@ -8,7 +8,7 @@ type RequestTokenResponse struct {
 	CallbackConfirmed bool
 }
 
-func ParseRequestTokenStringToStruct(str string) RequestTokenResponse {
+func parseRequestTokenStringToStruct(str string) RequestTokenResponse {
 	str_arr := strings.Split(str, "&")
 	var token_resp RequestTokenResponse
 	for _, val := range str_arr {
@@ -32,7 +32,7 @@ type AccessTokenResponse struct {
 	OAuthTokenSecret string `json:"oauthTokenSecret"`
 }
 
-func ParseAccessTokenStringToStruct(str string) AccessTokenResponse {
+func parseAccessTokenStringToStruct(str string) AccessTokenResponse {
 	str_arr := strings.Split(str, "&")
 	var token_resp AccessTokenResponse
 	for _, val := range str_arr {

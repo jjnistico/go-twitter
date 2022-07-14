@@ -41,7 +41,7 @@ func RequestToken() (RequestTokenResponse, int, error) {
 	defer resp.Body.Close()
 	data, _ := ioutil.ReadAll(resp.Body)
 
-	token_struct := ParseRequestTokenStringToStruct(string(data))
+	token_struct := parseRequestTokenStringToStruct(string(data))
 
 	if !token_struct.CallbackConfirmed {
 		return RequestTokenResponse{}, http.StatusUnauthorized, errors.New("callback not confirmed")
@@ -105,7 +105,7 @@ func AccessToken(oauth_token string, oauth_verifier string) (AccessTokenResponse
 	defer resp.Body.Close()
 	data, _ := ioutil.ReadAll(resp.Body)
 
-	token_struct := ParseAccessTokenStringToStruct(string(data))
+	token_struct := parseAccessTokenStringToStruct(string(data))
 
 	return token_struct, resp.StatusCode, nil
 }
