@@ -1,5 +1,7 @@
 package types
 
+type CustomBool bool
+
 type Coordinates struct {
 	Type        string `json:"type"`
 	Coordinates [2]int `json:"coordinates"`
@@ -31,6 +33,11 @@ type Media struct {
 type Poll struct {
 	DurationMinutes uint     `json:"duration_minutes"`
 	Options         []string `json:"options"`
+}
+
+type StartEnd struct {
+	Start int `json:"start"`
+	End   int `json:"end"`
 }
 
 type ErrorResponse struct {

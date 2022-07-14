@@ -54,7 +54,7 @@ func NewRequest(
 		return &new_request
 	}
 
-	if payload != nil {
+	if http_method == http.MethodPost {
 		req.Header.Add("content-type", "application/json")
 	}
 
@@ -63,14 +63,12 @@ func NewRequest(
 }
 
 func (r *GOTRequest) Authorize() {
-	if r.req == nil {
-		panic("request not initialized")
-	}
-
+	checkRequest(r.req)
 	oauth.AuthorizeRequest(r.req)
 }
 
 func (r *GOTRequest) VerifyQueryParams(required_params []string) {
+	checkRequest(r.req)
 	query_params := r.req.URL.Query()
 
 	if err := utils.VerifyRequiredQueryParams(query_params, required_params); err != nil {
@@ -79,9 +77,7 @@ func (r *GOTRequest) VerifyQueryParams(required_params []string) {
 }
 
 func (r *GOTRequest) Execute() (data interface{}, errors []types.Error) {
-	if r.req == nil {
-		panic("request not initialized")
-	}
+	checkRequest(r.req)
 
 	if len(r.Errors()) > 0 {
 		return nil, r.Errors()
@@ -110,4 +106,10 @@ func (r *GOTRequest) Execute() (data interface{}, errors []types.Error) {
 	}
 
 	return data, nil
+}
+
+func checkRequest(req *http.Request) {
+	if req == nil {
+		panic("request not initialized")
+	}
 }

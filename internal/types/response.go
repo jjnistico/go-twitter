@@ -5,7 +5,7 @@ type createResponseData interface{ CreateTweetResponse }
 type deleteResponseData interface{ DeleteTweetResponse }
 
 type getResponseData interface {
-	TweetsResponse | UsersResponse
+	TweetsResponse | UsersResponse | UserResponse
 }
 
 type ResponseData interface {
