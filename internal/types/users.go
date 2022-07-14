@@ -16,13 +16,35 @@ type UserHashtags struct {
 	Hashtag string `json:"hashtag"`
 }
 
+type UserCashtags struct {
+	StartEnd
+	Cashtag string `json:"cashtag"`
+}
+
 type UserMentions struct {
 	StartEnd
 	Username string `json:"username"`
 }
 
+type PublicMetrics struct {
+	FollowersCount int `json:"followers_count"`
+	FollowingCount int `json:"following_count"`
+	TweetCount     int `json:"tweet_count"`
+	ListedCount    int `json:"listed_count"`
+}
+
 type UserDescription struct {
-	Urls []UserUrls `json:"urls"`
+	Urls            []UserUrls      `json:"urls"`
+	Hashtags        []UserHashtags  `json:"hashtags"`
+	Mentions        []UserMentions  `json:"mentions"`
+	Cashtags        []UserCashtags  `json:"cashtags"`
+	ProfileImageUrl string          `json:"profile_image_url"`
+	PublicMetrics   []PublicMetrics `json:"public_metrics"`
+	PinnedTweetId   string          `json:"pinned_tweet_id"`
+	Includes        struct {
+		Tweets []TweetData `json:"tweets"`
+	} `json:"includes"`
+	ErrorResponse
 }
 
 type UserEntities struct {
@@ -54,6 +76,11 @@ type UserData struct {
 	Url         string   `json:"url"`
 	Description string   `json:"description"`
 	Verified    bool     `json:"verified"`
+}
+
+type UserResponse struct {
+	Data UserData `json:"data"`
+	ErrorResponse
 }
 
 type UsersResponse struct {

@@ -46,11 +46,10 @@ func (*Tweets) Create(payload types.GOTPayload) (types.CreateTweet, []types.Erro
 }
 
 // https://developer.twitter.com/en/docs/twitter-api/tweets/manage-tweets/api-reference/delete-tweets-id
-// Payload parameters:
+// Parameters:
 //    `id` string - the id of the tweet to be deleted
 //
-func (*Tweets) Delete(payload types.GOTPayload) (types.DeleteTweet, []types.Error) {
-	tweet_id := payload["id"]
+func (*Tweets) Delete(tweet_id string) (types.DeleteTweet, []types.Error) {
 	response, errors := network.Delete[types.DeleteTweetResponse](endpoint.TweetById(tweet_id))
 	if errors != nil {
 		return types.DeleteTweet{}, errors

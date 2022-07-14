@@ -5,7 +5,6 @@ import (
 	"log"
 
 	got "gotwitter/internal"
-	t "gotwitter/internal/types"
 
 	"github.com/joho/godotenv"
 )
@@ -19,20 +18,12 @@ func main() {
 
 	got_client := got.NewClient()
 
-	users, errors := got_client.Users.Get(t.GOTOptions{
-		"ids":          {"1531882200"},
+	user, errors := got_client.Users.GetByUsername("jack", got.Options{
 		"expansions":   {"pinned_tweet_id"},
-		"tweet.fields": {"author_id", "id"},
-		"user.fields":  {"created_at", "id", "description", "name", "username", "verified"},
+		"user.fields":  {"created_at", "withheld", "verified"},
+		"tweet.fields": {"created_at"},
 	})
 
-	for _, user := range users {
-		fmt.Printf("%+v\n", user)
-	}
-
-	fmt.Println()
-
-	for _, error := range errors {
-		fmt.Printf("%+v\n", error)
-	}
+	fmt.Printf("%+v\n", user)
+	fmt.Printf("%+v\n", errors)
 }
