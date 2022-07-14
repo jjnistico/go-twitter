@@ -12,7 +12,7 @@ import (
 func AuthorizeRequest(req *http.Request) {
 	oauth_consumer_key := os.Getenv("API_KEY")
 	oauth_token := os.Getenv("OAUTH_TOKEN")
-	nonce := GenerateNonce(14)
+	nonce := generateNonce(14)
 	timestamp := time.Now().Unix()
 
 	query_params := req.URL.Query()
@@ -63,7 +63,7 @@ func buildAuthorizationHeader(header_entries []map[string]string) string {
 			if v == "" {
 				continue
 			}
-			builder.WriteString(fmt.Sprintf("%s=\"%s\"", PercentEncode(k), PercentEncode(v)))
+			builder.WriteString(fmt.Sprintf("%s=\"%s\"", percentEncode(k), percentEncode(v)))
 			if idx < len(header_entries)-1 {
 				builder.WriteString(", ")
 			}

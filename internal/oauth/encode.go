@@ -6,7 +6,7 @@ import (
 )
 
 // algorithm https://developer.twitter.com/en/docs/authentication/oauth-1-0a/percent-encoding-parameters
-func PercentEncode(str string) string {
+func percentEncode(str string) string {
 	builder := strings.Builder{}
 	for _, ch := range str {
 		switch ch {
@@ -17,7 +17,7 @@ func PercentEncode(str string) string {
 		case 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z':
 			fallthrough
 		case '-', '.', '_', '~':
-			builder.WriteString(string(ch))
+			builder.WriteRune(ch)
 		default:
 			encodeRune(ch, &builder)
 		}
