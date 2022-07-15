@@ -2,15 +2,15 @@ package utils
 
 import "sort"
 
-func SortByMapKey(map_to_sort []map[string]string) {
-	sort.Slice(map_to_sort, func(i, j int) bool {
-		var a_key, b_key string
-		for key := range map_to_sort[i] {
-			a_key = key
+func SortByMapKey(mapToSort []map[string]string) {
+	sort.Slice(mapToSort, func(i, j int) bool {
+		var aKey, bKey string
+		for key := range mapToSort[i] {
+			aKey = key
 		}
-		for key := range map_to_sort[j] {
-			b_key = key
+		for key := range mapToSort[j] {
+			bKey = key
 		}
-		return a_key < b_key
+		return aKey < bKey
 	})
 }

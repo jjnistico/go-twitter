@@ -12,11 +12,11 @@ import (
 
 // see https://developer.twitter.com/en/docs/authentication/api-reference/request_token
 func RequestToken() (RequestTokenResponse, int, error) {
-	auth_callback := os.Getenv("AUTH_CALLBACK")
-	query_params := url.Values{}
-	query_params.Set("oauth_callback", auth_callback)
+	authCallback := os.Getenv("AUTH_CALLBACK")
+	queryParams := url.Values{}
+	queryParams.Set("oauth_callback", authCallback)
 
-	token_req, err := http.NewRequest(http.MethodPost, endpoint.OauthRequestToken+"?"+query_params.Encode(), nil)
+	token_req, err := http.NewRequest(http.MethodPost, endpoint.OauthRequestToken+"?"+queryParams.Encode(), nil)
 
 	if err != nil {
 		return RequestTokenResponse{}, http.StatusInternalServerError, fmt.Errorf(
@@ -41,21 +41,21 @@ func RequestToken() (RequestTokenResponse, int, error) {
 	defer resp.Body.Close()
 	data, _ := ioutil.ReadAll(resp.Body)
 
-	token_struct := parseRequestTokenStringToStruct(string(data))
+	tokenStruct := parseRequestTokenStringToStruct(string(data))
 
-	if !token_struct.CallbackConfirmed {
+	if !tokenStruct.CallbackConfirmed {
 		return RequestTokenResponse{}, http.StatusUnauthorized, errors.New("callback not confirmed")
 	}
 
-	return token_struct, resp.StatusCode, nil
+	return tokenStruct, resp.StatusCode, nil
 }
 
 // Authenticate is an unauthorized request. It returns the twitter page for login
 func Authenticate(oauth_token string) ([]byte, int, error) {
-	query_params := url.Values{}
-	query_params.Set("oauth_token", oauth_token)
+	queryParams := url.Values{}
+	queryParams.Set("oauth_token", oauth_token)
 
-	auth_req, err := http.NewRequest(http.MethodGet, endpoint.OauthAuthenticate+"?"+query_params.Encode(), nil)
+	authReq, err := http.NewRequest(http.MethodGet, endpoint.OauthAuthenticate+"?"+queryParams.Encode(), nil)
 
 	if err != nil {
 		return nil, http.StatusInternalServerError, fmt.Errorf(
@@ -65,7 +65,7 @@ func Authenticate(oauth_token string) ([]byte, int, error) {
 	}
 
 	client := &http.Client{}
-	resp, err := client.Do(auth_req)
+	resp, err := client.Do(authReq)
 
 	if err != nil {
 		return nil, resp.StatusCode, fmt.Errorf("error requesting second leg of oauth protocol: %s", err.Error())
@@ -78,12 +78,12 @@ func Authenticate(oauth_token string) ([]byte, int, error) {
 }
 
 // The oauth_token here is the same oauth_token returned from `RequestToken` from step 1 of oauth flow
-func AccessToken(oauth_token string, oauth_verifier string) (AccessTokenResponse, int, error) {
-	query_params := url.Values{}
-	query_params.Set("oauth_token", oauth_token)
-	query_params.Set("oauth_verifier", oauth_verifier)
+func AccessToken(oauthToken string, oauthVerifier string) (AccessTokenResponse, int, error) {
+	queryParams := url.Values{}
+	queryParams.Set("oauth_token", oauthToken)
+	queryParams.Set("oauth_verifier", oauthVerifier)
 
-	access_token_req, err := http.NewRequest(http.MethodPost, endpoint.OauthAccessToken+"?"+query_params.Encode(), nil)
+	accessTokenReq, err := http.NewRequest(http.MethodPost, endpoint.OauthAccessToken+"?"+queryParams.Encode(), nil)
 
 	if err != nil {
 		return AccessTokenResponse{}, http.StatusInternalServerError, fmt.Errorf(
@@ -93,7 +93,7 @@ func AccessToken(oauth_token string, oauth_verifier string) (AccessTokenResponse
 	}
 
 	client := &http.Client{}
-	resp, err := client.Do(access_token_req)
+	resp, err := client.Do(accessTokenReq)
 
 	if err != nil {
 		return AccessTokenResponse{}, resp.StatusCode, fmt.Errorf(
@@ -105,7 +105,7 @@ func AccessToken(oauth_token string, oauth_verifier string) (AccessTokenResponse
 	defer resp.Body.Close()
 	data, _ := ioutil.ReadAll(resp.Body)
 
-	token_struct := parseAccessTokenStringToStruct(string(data))
+	tokenStruct := parseAccessTokenStringToStruct(string(data))
 
-	return token_struct, resp.StatusCode, nil
+	return tokenStruct, resp.StatusCode, nil
 }

@@ -6,7 +6,7 @@ import (
 )
 
 func TestSortByMapKey(t *testing.T) {
-	test_maps := [][]map[string]string{
+	testMaps := [][]map[string]string{
 		{
 			{"e_key": "e_val"},
 			{"d_key": "d_val"},
@@ -20,7 +20,7 @@ func TestSortByMapKey(t *testing.T) {
 		{},
 	}
 
-	expected_maps := [][]map[string]string{
+	expectedMaps := [][]map[string]string{
 		{
 			{"a_key": "a_val"},
 			{"b_key": "b_val"},
@@ -34,13 +34,13 @@ func TestSortByMapKey(t *testing.T) {
 		{},
 	}
 
-	for i := 0; i < len(test_maps); i++ {
-		SortByMapKey(test_maps[i])
+	for i := 0; i < len(testMaps); i++ {
+		SortByMapKey(testMaps[i])
 
-		pass := test.CompareObjectMaps(test_maps[i], expected_maps[i])
+		pass := test.CompareObjectMaps(testMaps[i], expectedMaps[i])
 
 		if !pass {
-			t.Errorf("\nexpected: %#v,\n actual: %#v\n", expected_maps[i], test_maps[i])
+			t.Errorf("\nexpected: %#v,\n actual: %#v\n", expectedMaps[i], testMaps[i])
 		}
 	}
 

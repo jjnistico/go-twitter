@@ -20,10 +20,10 @@ import (
 // `oauth_version`: string - should always be 1.0 for the Twitter API                          //
 // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // //
 func GetRequestSignature(
-	signature_params []map[string]string,
+	signatureParams []map[string]string,
 	method string,
-	base_url string,
-	query_params string,
+	baseUrl string,
+	queryParams string,
 ) string {
 	builder := strings.Builder{}
 
@@ -31,7 +31,7 @@ func GetRequestSignature(
 	// The parameter string is a concatenated list of parameters, joined by '&'.
 	// Each key and value are percent encoded (see encode.go) before appending to the string.
 	// NOTE: The key/value pairs must be sorted lexicographically
-	for idx, entry := range signature_params {
+	for idx, entry := range signatureParams {
 		for k, v := range entry {
 			if v == "" {
 				continue
@@ -39,13 +39,13 @@ func GetRequestSignature(
 
 			builder.WriteString(fmt.Sprintf("%s=%s", percentEncode(k), percentEncode(v)))
 
-			if idx < len(signature_params)-1 {
+			if idx < len(signatureParams)-1 {
 				builder.WriteString("&")
 			}
 		}
 	}
 
-	parameter_string := builder.String()
+	parameterString := builder.String()
 	builder.Reset()
 
 	// 2. Build the signature string
@@ -55,14 +55,11 @@ func GetRequestSignature(
 	//    - Percent encode the URL and append to the signature string
 	//    - Append '&'
 	//    - Percent encode the parameter string and append to signature string
-	builder.WriteString(fmt.Sprintf("%s&%s&%s", method, percentEncode(base_url), percentEncode(parameter_string)))
-	signature_base_string := builder.String()
+	builder.WriteString(fmt.Sprintf("%s&%s&%s", method, percentEncode(baseUrl), percentEncode(parameterString)))
+	signatureBaseString := builder.String()
 	builder.Reset()
 
-	oauth_consumer_secret := auth.AuthSvc.ApiSecret()
-	oauth_token_secret := auth.AuthSvc.OAuthTokenSecret()
-
-	builder.WriteString(fmt.Sprintf("%s&%s", percentEncode(oauth_consumer_secret), percentEncode(oauth_token_secret)))
+	builder.WriteString(fmt.Sprintf("%s&%s", percentEncode(auth.AuthSvc.ApiSecret()), percentEncode(auth.AuthSvc.OAuthTokenSecret())))
 
 	// 3. Create the signing key
 	// The signing key is a hash created from two components:
@@ -70,8 +67,8 @@ func GetRequestSignature(
 	//    - The concatenation of the percent encoded consumer secret and percent encoded oauth token secret
 	// The signature base string is passed as the data string to the HMAC-SHA1 hash function and the
 	// signing key is passed as the key to the HMAC-SHA1 hash function
-	signing_key := builder.String()
-	hash := hmacHash(signature_base_string, signing_key)
+	signingKey := builder.String()
+	hash := hmacHash(signatureBaseString, signingKey)
 
 	return hash
 }

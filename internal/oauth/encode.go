@@ -29,6 +29,6 @@ func encodeRune(char rune, builder *strings.Builder) {
 	builder.WriteString("%")
 
 	// hex representation of char as string
-	hex_str := fmt.Sprintf("%x", byte(char))
-	builder.WriteString(strings.ToUpper(hex_str))
+	hexStr := fmt.Sprintf("%x", byte(char))
+	builder.WriteString(strings.ToUpper(hexStr))
 }

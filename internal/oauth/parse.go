@@ -9,20 +9,20 @@ type RequestTokenResponse struct {
 }
 
 func parseRequestTokenStringToStruct(str string) RequestTokenResponse {
-	str_arr := strings.Split(str, "&")
-	var token_resp RequestTokenResponse
-	for _, val := range str_arr {
+	strArr := strings.Split(str, "&")
+	var tokenResp RequestTokenResponse
+	for _, val := range strArr {
 		split_val := strings.Split(val, "=")
 		switch split_val[0] {
 		case "oauth_token":
-			token_resp.Token = split_val[1]
+			tokenResp.Token = split_val[1]
 		case "oauth_token_secret":
-			token_resp.Secret = split_val[1]
+			tokenResp.Secret = split_val[1]
 		case "oauth_callback_confirmed":
-			token_resp.CallbackConfirmed = bool(split_val[1] == "true")
+			tokenResp.CallbackConfirmed = bool(split_val[1] == "true")
 		}
 	}
-	return token_resp
+	return tokenResp
 }
 
 type AccessTokenResponse struct {
@@ -33,20 +33,20 @@ type AccessTokenResponse struct {
 }
 
 func parseAccessTokenStringToStruct(str string) AccessTokenResponse {
-	str_arr := strings.Split(str, "&")
-	var token_resp AccessTokenResponse
-	for _, val := range str_arr {
+	strArr := strings.Split(str, "&")
+	var tokenResp AccessTokenResponse
+	for _, val := range strArr {
 		split_val := strings.Split(val, "=")
 		switch split_val[0] {
 		case "oauth_token":
-			token_resp.OAuthToken = split_val[1]
+			tokenResp.OAuthToken = split_val[1]
 		case "oauth_token_secret":
-			token_resp.OAuthTokenSecret = split_val[1]
+			tokenResp.OAuthTokenSecret = split_val[1]
 		case "user_id":
-			token_resp.UserId = split_val[1]
+			tokenResp.UserId = split_val[1]
 		case "screen_name":
-			token_resp.ScreenName = split_val[1]
+			tokenResp.ScreenName = split_val[1]
 		}
 	}
-	return token_resp
+	return tokenResp
 }

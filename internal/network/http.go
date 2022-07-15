@@ -54,7 +54,7 @@ func apiRequest[T types.ResponseData](
 	endpoint string,
 	method string,
 	options types.GOTOptions,
-	required_params []string,
+	requiredParams []string,
 	payload types.GOTPayload,
 ) (T, []types.Error) {
 	// map options to url.Values for http request
@@ -76,8 +76,8 @@ func apiRequest[T types.ResponseData](
 		request = NewRequest(endpoint, query_params, method, nil)
 	}
 
-	if required_params != nil {
-		request.VerifyQueryParams(required_params)
+	if requiredParams != nil {
+		request.VerifyQueryParams(requiredParams)
 	}
 
 	// this creates the request signature and oauth header and adds it as the `Authorization` request header
@@ -86,12 +86,12 @@ func apiRequest[T types.ResponseData](
 	data, errors := request.Execute()
 
 	// unmarshal byte array to a GO type if no errors from execution of query, else return errors and nil data
-	var structured_data T
+	var structuredData T
 	if len(errors) == 0 {
-		if err := json.Unmarshal(data.([]byte), &structured_data); err != nil {
+		if err := json.Unmarshal(data.([]byte), &structuredData); err != nil {
 			panic(err.Error())
 		}
 	}
 
-	return structured_data, errors
+	return structuredData, errors
 }

@@ -6,36 +6,33 @@ import (
 	"strings"
 )
 
-func ExtractParameterFromQuery(
-	query_params url.Values,
-	path_param string) (string, url.Values, error) {
+func ExtractParameterFromQuery(queryParams url.Values, pathParam string) (string, url.Values, error) {
+	urlPathParameter := queryParams.Get(pathParam)
 
-	url_path_parameter := query_params.Get(path_param)
-
-	if len(url_path_parameter) == 0 {
-		return "", nil, fmt.Errorf("`%s` query parameter required", path_param)
+	if len(urlPathParameter) == 0 {
+		return "", nil, fmt.Errorf("`%s` query parameter required", pathParam)
 	}
 
-	query_params.Del(path_param)
+	queryParams.Del(pathParam)
 
-	return url_path_parameter, query_params, nil
+	return urlPathParameter, queryParams, nil
 }
 
-func VerifyRequiredQueryParams(query_params url.Values, required_params []string) error {
-	if len(required_params) == 0 {
+func VerifyRequiredQueryParams(queryParams url.Values, requiredParams []string) error {
+	if len(requiredParams) == 0 {
 		return nil
 	}
 
-	missing_query_params := []string{}
-	for _, required_param := range required_params {
-		curr_query_val := query_params[required_param]
-		if len(curr_query_val) == 0 {
-			missing_query_params = append(missing_query_params, required_param)
+	missingQueryParams := []string{}
+	for _, requiredParam := range requiredParams {
+		currQueryVal := queryParams[requiredParam]
+		if len(currQueryVal) == 0 {
+			missingQueryParams = append(missingQueryParams, requiredParam)
 		}
 	}
 
-	if len(missing_query_params) > 0 {
-		return fmt.Errorf("missing query parameters: [%s]", strings.Join(missing_query_params, ", "))
+	if len(missingQueryParams) > 0 {
+		return fmt.Errorf("missing query parameters: [%s]", strings.Join(missingQueryParams, ", "))
 	}
 
 	return nil
