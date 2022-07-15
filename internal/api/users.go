@@ -30,8 +30,8 @@ func (*Users) Get(options types.GOTOptions) ([]types.UserData, []types.Error) {
 //     `tweet.fields` []string - array of tweet fields to include.
 //     `user.fields`  []string - array of user fields to include.
 //
-func (*Users) GetByUsername(user_name string, options types.GOTOptions) (types.UserData, []types.Error) {
-	response, errors := network.Get[types.UserResponse](endpoint.UserByUsername(user_name), options, nil)
+func (*Users) GetByUsername(userName string, options types.GOTOptions) (types.UserData, []types.Error) {
+	response, errors := network.Get[types.UserResponse](endpoint.UserByUsername(userName), options, nil)
 	if errors != nil {
 		return types.UserData{}, errors
 	}

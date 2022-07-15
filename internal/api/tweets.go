@@ -49,8 +49,8 @@ func (*Tweets) Create(payload types.GOTPayload) (types.CreateTweet, []types.Erro
 // Parameters:
 //    `id` string - the id of the tweet to be deleted
 //
-func (*Tweets) Delete(tweet_id string) (types.DeleteTweet, []types.Error) {
-	response, errors := network.Delete[types.DeleteTweetResponse](endpoint.TweetById(tweet_id))
+func (*Tweets) Delete(tweetId string) (types.DeleteTweet, []types.Error) {
+	response, errors := network.Delete[types.DeleteTweetResponse](endpoint.TweetById(tweetId))
 	if errors != nil {
 		return types.DeleteTweet{}, errors
 	}

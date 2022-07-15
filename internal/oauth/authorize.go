@@ -11,19 +11,19 @@ import (
 
 // see https://developer.twitter.com/en/docs/authentication/oauth-1-0a for oauth 1.0 auth flow used below
 func AuthorizeRequest(req *http.Request) {
-	oauth_consumer_key := auth.AuthSvc.ApiKey()
-	oauth_token := auth.AuthSvc.OAuthToken()
+	oauthConsumerKey := auth.AuthSvc.ApiKey()
+	oauthToken := auth.AuthSvc.OAuthToken()
 	nonce := generateNonce(14)
 	timestamp := time.Now().Unix()
 
 	query_params := req.URL.Query()
 
 	signature_payload := []map[string]string{
-		{"oauth_consumer_key": oauth_consumer_key},
+		{"oauth_consumer_key": oauthConsumerKey},
 		{"oauth_nonce": nonce},
 		{"oauth_signature_method": "HMAC-SHA1"},
 		{"oauth_timestamp": fmt.Sprintf("%d", timestamp)},
-		{"oauth_token": oauth_token},
+		{"oauth_token": oauthToken},
 		{"oauth_version": "1.0"},
 	}
 
@@ -35,7 +35,7 @@ func AuthorizeRequest(req *http.Request) {
 
 	req_url := req.URL.Scheme + "://" + req.URL.Host + req.URL.Path
 
-	request_signature := GetRequestSignature(
+	requestSignature := GetRequestSignature(
 		signature_payload,
 		req.Method,
 		req_url,
@@ -43,29 +43,29 @@ func AuthorizeRequest(req *http.Request) {
 	)
 
 	authorization_header_payload := []map[string]string{
-		{"oauth_consumer_key": oauth_consumer_key},
+		{"oauth_consumer_key": oauthConsumerKey},
 		{"oauth_nonce": nonce},
-		{"oauth_signature": request_signature},
+		{"oauth_signature": requestSignature},
 		{"oauth_signature_method": "HMAC-SHA1"},
 		{"oauth_timestamp": fmt.Sprintf("%d", timestamp)},
-		{"oauth_token": oauth_token},
+		{"oauth_token": oauthToken},
 		{"oauth_version": "1.0"}}
 
-	auth_header := buildAuthorizationHeader(authorization_header_payload)
+	authHeader := buildAuthorizationHeader(authorization_header_payload)
 
-	req.Header.Add("Authorization", auth_header)
+	req.Header.Add("Authorization", authHeader)
 }
 
-func buildAuthorizationHeader(header_entries []map[string]string) string {
+func buildAuthorizationHeader(headerEntries []map[string]string) string {
 	builder := strings.Builder{}
 	builder.WriteString("OAuth ")
-	for idx, entry := range header_entries {
+	for idx, entry := range headerEntries {
 		for k, v := range entry {
 			if v == "" {
 				continue
 			}
 			builder.WriteString(fmt.Sprintf("%s=\"%s\"", percentEncode(k), percentEncode(v)))
-			if idx < len(header_entries)-1 {
+			if idx < len(headerEntries)-1 {
 				builder.WriteString(", ")
 			}
 		}

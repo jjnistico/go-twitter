@@ -16,8 +16,8 @@ type GOTRequest struct {
 	errors []types.Error
 }
 
-func (r *GOTRequest) AddError(title string, message string, detail string, error_type string) {
-	gerr := types.Error{Title: title, Message: message, Detail: detail, Error_type: error_type}
+func (r *GOTRequest) AddError(title string, message string, detail string, errorType string) {
+	gerr := types.Error{Title: title, Message: message, Detail: detail, Error_type: errorType}
 
 	if r.errors == nil {
 		r.errors = []types.Error{}
@@ -32,34 +32,34 @@ func (r *GOTRequest) Errors() []types.Error {
 
 func NewRequest(
 	endpoint string,
-	query_params url.Values,
-	http_method string,
+	queryParams url.Values,
+	httpMethod string,
 	payload io.Reader,
 ) *GOTRequest {
-	new_request := GOTRequest{}
+	newRequest := GOTRequest{}
 
-	req, err := http.NewRequest(http_method, endpoint+"?"+query_params.Encode(), payload)
+	req, err := http.NewRequest(httpMethod, endpoint+"?"+queryParams.Encode(), payload)
 
 	if err != nil {
-		new_request.AddError(
+		newRequest.AddError(
 			"request generation error",
 			fmt.Sprintf(
 				"error generating request for endpoint: %s | query: %s -> %s",
 				endpoint,
-				query_params.Encode(),
+				queryParams.Encode(),
 				err.Error(),
 			),
 			"",
 			"request")
-		return &new_request
+		return &newRequest
 	}
 
-	if http_method == http.MethodPost {
+	if httpMethod == http.MethodPost {
 		req.Header.Add("content-type", "application/json")
 	}
 
-	new_request.req = req
-	return &new_request
+	newRequest.req = req
+	return &newRequest
 }
 
 func (r *GOTRequest) Authorize() {
@@ -67,11 +67,11 @@ func (r *GOTRequest) Authorize() {
 	oauth.AuthorizeRequest(r.req)
 }
 
-func (r *GOTRequest) VerifyQueryParams(required_params []string) {
+func (r *GOTRequest) VerifyQueryParams(requiredParams []string) {
 	checkRequest(r.req)
-	query_params := r.req.URL.Query()
+	queryParams := r.req.URL.Query()
 
-	if err := utils.VerifyRequiredQueryParams(query_params, required_params); err != nil {
+	if err := utils.VerifyRequiredQueryParams(queryParams, requiredParams); err != nil {
 		r.AddError("query parameter error", err.Error(), "", "request")
 	}
 }

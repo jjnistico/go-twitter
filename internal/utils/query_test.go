@@ -6,41 +6,41 @@ import (
 )
 
 func TestGetPathParameterFromQuery(t *testing.T) {
-	query_params := url.Values{}
-	expected_val := "test_val"
-	query_params.Add("test_param", expected_val)
-	query_params.Add("remaining_param", "remaining_val")
+	queryParams := url.Values{}
+	expectedVal := "test_val"
+	queryParams.Add("test_param", expectedVal)
+	queryParams.Add("remaining_param", "remaining_val")
 
-	actual_val, new_params, err := ExtractParameterFromQuery(query_params, "test_param")
+	actualVal, newParams, err := ExtractParameterFromQuery(queryParams, "test_param")
 
 	if err != nil {
 		t.Errorf("\nerror getting query param: %s\n", err.Error())
 	}
 
-	if actual_val != expected_val {
-		t.Errorf("\nexpected: %s, got: %s\n", expected_val, actual_val)
+	if actualVal != expectedVal {
+		t.Errorf("\nexpected: %s, got: %s\n", expectedVal, actualVal)
 	}
 
-	if new_params.Get("remaining_param") == "" {
+	if newParams.Get("remaining_param") == "" {
 		t.Errorf("\nexpected remaining param key `remaining_param` to be %s\n", "remaining_val")
 	}
 }
 
 func TestMissingPathParameterFromQuery(t *testing.T) {
-	query_params := url.Values{}
+	queryParams := url.Values{}
 	param := "test_param"
 
-	actual_val, new_params, err := ExtractParameterFromQuery(query_params, param)
+	actualVal, newParams, err := ExtractParameterFromQuery(queryParams, param)
 
 	if err == nil {
 		t.Error("expected error with missing query param but got nil")
 	}
 
-	if new_params.Encode() != "" {
+	if newParams.Encode() != "" {
 		t.Error("expected empty query params")
 	}
 
-	if actual_val != "" {
-		t.Errorf("\nexpected empty string for missing key but got: %s", actual_val)
+	if actualVal != "" {
+		t.Errorf("\nexpected empty string for missing key but got: %s", actualVal)
 	}
 }
