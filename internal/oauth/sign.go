@@ -2,7 +2,7 @@ package oauth
 
 import (
 	"fmt"
-	"os"
+	"gotwitter/internal/auth"
 	"strings"
 )
 
@@ -59,8 +59,8 @@ func GetRequestSignature(
 	signature_base_string := builder.String()
 	builder.Reset()
 
-	oauth_consumer_secret := os.Getenv("TWITTER_API_SECRET")
-	oauth_token_secret := os.Getenv("TWITTER_OAUTH_TOKEN_SECRET")
+	oauth_consumer_secret := auth.AuthSvc.ApiSecret()
+	oauth_token_secret := auth.AuthSvc.OAuthTokenSecret()
 
 	builder.WriteString(fmt.Sprintf("%s&%s", percentEncode(oauth_consumer_secret), percentEncode(oauth_token_secret)))
 

@@ -2,17 +2,17 @@ package oauth
 
 import (
 	"fmt"
+	"gotwitter/internal/auth"
 	"gotwitter/internal/utils"
 	"net/http"
-	"os"
 	"strings"
 	"time"
 )
 
 // see https://developer.twitter.com/en/docs/authentication/oauth-1-0a for oauth 1.0 auth flow used below
 func AuthorizeRequest(req *http.Request) {
-	oauth_consumer_key := os.Getenv("TWITTER_API_KEY")
-	oauth_token := os.Getenv("TWITTER_OAUTH_TOKEN")
+	oauth_consumer_key := auth.AuthSvc.ApiKey()
+	oauth_token := auth.AuthSvc.OAuthToken()
 	nonce := generateNonce(14)
 	timestamp := time.Now().Unix()
 
