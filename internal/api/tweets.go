@@ -19,8 +19,8 @@ type Tweets struct {
 //     `tweet.fields` []string - array of tweet fields to include.
 //     `user.fields`  []string - array of user fields to include. Requires certain expansions (see link)
 //
-func (*Tweets) Get(options types.GOTOptions) ([]types.TweetData, []types.Error) {
-	response, errors := network.Get[types.TweetsResponse](endpoint.Tweets, options, []string{"ids"})
+func (*Tweets) Get(ids []string, options types.GOTOptions) ([]types.TweetData, []types.Error) {
+	response, errors := network.Get[types.TweetsResponse](endpoint.Tweets, options, nil)
 	if errors != nil {
 		return []types.TweetData{}, errors
 	}
