@@ -1,3 +1,3 @@
-package api
+package gotwit
 
 func GetFollows() {}

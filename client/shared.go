@@ -1,47 +1,45 @@
-package types
+package gotwit
 
-type CustomBool bool
-
-type Coordinates struct {
+type coordinates struct {
 	Type        string `json:"type"`
 	Coordinates [2]int `json:"coordinates"`
 }
 
-type EntitiesT struct {
+type entitiesT struct {
 	Hashtags     []interface{} `json:"hashtags"`
 	Symbols      []interface{} `json:"symbols"`
-	UserMentions []UserMention `json:"user_mentions"`
+	UserMentions []userMention `json:"user_mentions"`
 }
 
-type Error struct {
+type gterror struct {
 	Detail     string `json:"detail"`
 	Message    string `json:"value"`
 	Title      string `json:"title"`
 	Error_type string `json:"type"`
 }
 
-type Geo struct {
-	Coordinates Coordinates `json:"coordinates"`
+type geo struct {
+	Coordinates coordinates `json:"coordinates"`
 	PlaceId     string      `json:"place_id"`
 }
 
-type Media struct {
+type media struct {
 	MediaIds      []string `json:"media_ids"`
 	TaggedUserIds []string `json:"tagged_user_ids"`
 }
 
-type Poll struct {
+type poll struct {
 	DurationMinutes uint     `json:"duration_minutes"`
 	Options         []string `json:"options"`
 }
 
-type StartEnd struct {
+type startEnd struct {
 	Start int `json:"start"`
 	End   int `json:"end"`
 }
 
 type ErrorResponse struct {
-	Errors []Error `json:"errors"`
+	Errors []gterror `json:"errors"`
 }
 
 type GOTOptions = map[string][]string
