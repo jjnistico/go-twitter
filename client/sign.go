@@ -1,8 +1,7 @@
-package oauth
+package gotwit
 
 import (
 	"fmt"
-	"gotwitter/internal/auth"
 	"strings"
 )
 
@@ -19,7 +18,7 @@ import (
 // `oauth_token`: string - token returned from /authentication                                 //
 // `oauth_version`: string - should always be 1.0 for the Twitter API                          //
 // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // //
-func GetRequestSignature(
+func getRequestSignature(
 	signatureParams []map[string]string,
 	method string,
 	baseUrl string,
@@ -59,7 +58,7 @@ func GetRequestSignature(
 	signatureBaseString := builder.String()
 	builder.Reset()
 
-	builder.WriteString(fmt.Sprintf("%s&%s", percentEncode(auth.AuthSvc.ApiSecret()), percentEncode(auth.AuthSvc.OAuthTokenSecret())))
+	builder.WriteString(fmt.Sprintf("%s&%s", percentEncode(credentialSvc.ApiSecret()), percentEncode(credentialSvc.OAuthTokenSecret())))
 
 	// 3. Create the signing key
 	// The signing key is a hash created from two components:

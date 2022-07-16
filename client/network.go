@@ -1,20 +1,19 @@
-package network
+package gotwit
 
 import (
 	"bytes"
 	"encoding/json"
-	"gotwitter/internal/types"
 	"net/http"
-	"net/url"
-	"strings"
 	"sync"
+
+	"github.com/google/go-querystring/query"
 )
 
 var lock = &sync.Mutex{}
 
 var clientInstance *http.Client
 
-func GetHttpClient() *http.Client {
+func getHttpClient() *http.Client {
 	if clientInstance == nil {
 		lock.Lock()
 		defer lock.Unlock()
@@ -29,59 +28,45 @@ func GetHttpClient() *http.Client {
 }
 
 // GET request to twitter api
-func Get[T types.ResponseData](
-	endpoint string,
-	options types.GOTOptions,
-	required_params []string,
-) (T, []types.Error) {
-	return apiRequest[T](endpoint, http.MethodGet, options, required_params, nil)
+func get[T responseData](endpoint string, opt interface{}) (T, []gterror) {
+	qs, _ := query.Values(opt)
+	return apiRequest[T](endpoint, http.MethodGet, qs.Encode(), nil)
 }
 
 // POST request to twitter api
-func Post[T types.ResponseData](endpoint string, payload types.GOTPayload) (T, []types.Error) {
-	return apiRequest[T](endpoint, http.MethodPost, nil, nil, payload)
+func post[T responseData](endpoint string, payload GOTPayload) (T, []gterror) {
+	return apiRequest[T](endpoint, http.MethodPost, "", payload)
 }
 
 // DELETE request to twitter api
-func Delete[T types.ResponseData](endpoint string) (T, []types.Error) {
-	return apiRequest[T](endpoint, http.MethodDelete, nil, nil, nil)
+func delete[T responseData](endpoint string) (T, []gterror) {
+	return apiRequest[T](endpoint, http.MethodDelete, "", nil)
 }
 
 // apiRequest makes the full roundtrip request to the twitter api and returns the type passed as a type
 // parameter as well as an array of any errors encountered through the request/response cycle. These errors
 // are not the same errors that the twitter api can return, which are part of the response object.
-func apiRequest[T types.ResponseData](
+func apiRequest[T responseData](
 	endpoint string,
 	method string,
-	options types.GOTOptions,
-	requiredParams []string,
-	payload types.GOTPayload,
-) (T, []types.Error) {
-	// map options to url.Values for http request
-	query_params := url.Values{}
-	for k, v := range options {
-		query_params.Set(k, strings.Join(v, ","))
-	}
-
+	queryString string,
+	payload GOTPayload,
+) (T, []gterror) {
 	// include buffer for post requests, nil otherwise (breaks if you pass nil *bytes.Buffer to NewRequest)
-	var request *GOTRequest
+	var request *gtRequest
 	if method == http.MethodPost {
 		// create buffer for payload for post requests
-		payload_buf := new(bytes.Buffer)
-		if err := json.NewEncoder(payload_buf).Encode(payload); err != nil {
+		payloadBuf := new(bytes.Buffer)
+		if err := json.NewEncoder(payloadBuf).Encode(payload); err != nil {
 			panic(err.Error())
 		}
-		request = NewRequest(endpoint, query_params, method, payload_buf)
+		request = newRequest(endpoint, queryString, method, payloadBuf)
 	} else {
-		request = NewRequest(endpoint, query_params, method, nil)
-	}
-
-	if requiredParams != nil {
-		request.VerifyQueryParams(requiredParams)
+		request = newRequest(endpoint, queryString, method, nil)
 	}
 
 	// this creates the request signature and oauth header and adds it as the `Authorization` request header
-	request.Authorize()
+	request.authorize()
 
 	data, errors := request.Execute()
 

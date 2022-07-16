@@ -1,24 +1,22 @@
-package oauth
+package gotwit
 
 import (
 	"fmt"
-	"gotwitter/internal/auth"
-	"gotwitter/internal/utils"
 	"net/http"
+	"sort"
 	"strings"
 	"time"
 )
 
 // see https://developer.twitter.com/en/docs/authentication/oauth-1-0a for oauth 1.0 auth flow used below
-func AuthorizeRequest(req *http.Request) {
-	oauthConsumerKey := auth.AuthSvc.ApiKey()
-	oauthToken := auth.AuthSvc.OAuthToken()
+func authorizeRequest(req *http.Request) {
+	oauthConsumerKey := credentialSvc.ApiKey()
+	oauthToken := credentialSvc.OAuthToken()
 	nonce := generateNonce(14)
 	timestamp := time.Now().Unix()
+	queryParams := req.URL.Query()
 
-	query_params := req.URL.Query()
-
-	signature_payload := []map[string]string{
+	signaturePayload := []map[string]string{
 		{"oauth_consumer_key": oauthConsumerKey},
 		{"oauth_nonce": nonce},
 		{"oauth_signature_method": "HMAC-SHA1"},
@@ -27,22 +25,31 @@ func AuthorizeRequest(req *http.Request) {
 		{"oauth_version": "1.0"},
 	}
 
-	for key, param := range query_params {
-		signature_payload = append(signature_payload, map[string]string{key: strings.Join(param, ",")})
+	for key, param := range queryParams {
+		signaturePayload = append(signaturePayload, map[string]string{key: strings.Join(param, ",")})
 	}
 
-	utils.SortByMapKey(signature_payload)
+	sort.Slice(signaturePayload, func(i, j int) bool {
+		var aKey, bKey string
+		for key := range signaturePayload[i] {
+			aKey = key
+		}
+		for key := range signaturePayload[j] {
+			bKey = key
+		}
+		return aKey < bKey
+	})
 
-	req_url := req.URL.Scheme + "://" + req.URL.Host + req.URL.Path
+	reqUrl := req.URL.Scheme + "://" + req.URL.Host + req.URL.Path
 
-	requestSignature := GetRequestSignature(
-		signature_payload,
+	requestSignature := getRequestSignature(
+		signaturePayload,
 		req.Method,
-		req_url,
+		reqUrl,
 		req.URL.RawQuery,
 	)
 
-	authorization_header_payload := []map[string]string{
+	authHeaderData := []map[string]string{
 		{"oauth_consumer_key": oauthConsumerKey},
 		{"oauth_nonce": nonce},
 		{"oauth_signature": requestSignature},
@@ -51,25 +58,20 @@ func AuthorizeRequest(req *http.Request) {
 		{"oauth_token": oauthToken},
 		{"oauth_version": "1.0"}}
 
-	authHeader := buildAuthorizationHeader(authorization_header_payload)
-
-	req.Header.Add("Authorization", authHeader)
-}
-
-func buildAuthorizationHeader(headerEntries []map[string]string) string {
 	builder := strings.Builder{}
 	builder.WriteString("OAuth ")
-	for idx, entry := range headerEntries {
+	for idx, entry := range authHeaderData {
 		for k, v := range entry {
 			if v == "" {
 				continue
 			}
 			builder.WriteString(fmt.Sprintf("%s=\"%s\"", percentEncode(k), percentEncode(v)))
-			if idx < len(headerEntries)-1 {
+			if idx < len(authHeaderData)-1 {
 				builder.WriteString(", ")
 			}
 		}
 	}
+	authHeader := builder.String()
 
-	return builder.String()
+	req.Header.Add("Authorization", authHeader)
 }
