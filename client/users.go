@@ -11,7 +11,7 @@ type Users struct{}
 //     `tweet.fields` []string - array of tweet fields to include.
 //     `user.fields`  []string - array of user fields to include.
 //
-func (*Users) Get(options GetUsers) usersResponse {
+func (*Users) Get(options GetUsersOptions) usersResponse {
 	response, errors := get[usersResponse](usersEndpoint, options)
 	if errors != nil {
 		fmt.Printf("%+v\n", errors)
@@ -26,7 +26,7 @@ func (*Users) Get(options GetUsers) usersResponse {
 //     `tweet.fields` []string - array of tweet fields to include.
 //     `user.fields`  []string - array of user fields to include.
 //
-func (*Users) GetByUsername(username string, options GetUserByUsername) userResponse {
+func (*Users) GetByUsername(username string, options GetUserByUsernameOptions) userResponse {
 	response, errors := get[userResponse](userByUsernameEndpoint(username), options)
 	if errors != nil {
 		fmt.Printf("%+v\n", errors)
@@ -68,17 +68,10 @@ type publicMetrics struct {
 }
 
 type userDescription struct {
-	Urls            []userUrls      `json:"urls"`
-	Hashtags        []userHashtags  `json:"hashtags"`
-	Mentions        []userMentions  `json:"mentions"`
-	Cashtags        []userCashtags  `json:"cashtags"`
-	ProfileImageUrl string          `json:"profile_image_url"`
-	PublicMetrics   []publicMetrics `json:"public_metrics"`
-	PinnedTweetId   string          `json:"pinned_tweet_id"`
-	Includes        struct {
-		Tweets []tweetData `json:"tweets"`
-	} `json:"includes"`
-	Errors []gterror `json:"errors"`
+	Urls     []userUrls     `json:"urls"`
+	Hashtags []userHashtags `json:"hashtags"`
+	Mentions []userMentions `json:"mentions"`
+	Cashtags []userCashtags `json:"cashtags"`
 }
 
 type userEntities struct {
@@ -91,25 +84,22 @@ type withheld struct {
 	Scope        string   `json:"scope"`
 }
 
-type userMention struct {
-	ScreenName string `json:"screen_name"`
-	Name       string `json:"name"`
-	ID         uint64 `json:"id"`
-	IDString   string `json:"id_str"`
-}
-
 type userData struct {
 	ID       string `json:"id"`
 	Name     string `json:"name"`
 	Username string `json:"username"`
 	// optional fields
-	CreatedAt   string   `json:"created_at"`
-	Protected   bool     `json:"protected"`
-	Withheld    withheld `json:"withheld"`
-	Location    string   `json:"location"`
-	Url         string   `json:"url"`
-	Description string   `json:"description"`
-	Verified    bool     `json:"verified"`
+	CreatedAt       string          `json:"created_at"`
+	Entities        []userEntities  `json:"entities"`
+	Protected       bool            `json:"protected"`
+	Withheld        withheld        `json:"withheld"`
+	Location        string          `json:"location"`
+	Url             string          `json:"url"`
+	Description     string          `json:"description"`
+	ProfileImageUrl string          `json:"profile_image_url"`
+	PublicMetrics   []publicMetrics `json:"public_metrics"`
+	PinnedTweetId   string          `json:"pinned_tweet"`
+	Verified        bool            `json:"verified"`
 }
 
 type userResponse struct {
@@ -136,13 +126,13 @@ type userTimelineResponse struct {
 	} `json:"data"`
 }
 
-type GetUserByUsername struct {
+type GetUserByUsernameOptions struct {
 	Expansions  []string `url:"expansions,omitempty,comma"`
 	TweetFields []string `url:"tweet.fields,omitempty,comma"`
 	UserFields  []string `url:"user.fields,omitempty,comma"`
 }
 
-type GetUsers struct {
+type GetUsersOptions struct {
 	Ids         []string `url:"ids,comma"`
 	Expansions  []string `url:"expansions,omitempty,comma"`
 	TweetFields []string `url:"tweet.fields,omitempty,comma"`

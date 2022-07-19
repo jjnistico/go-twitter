@@ -8,7 +8,7 @@ type coordinates struct {
 type entitiesT struct {
 	Hashtags     []interface{} `json:"hashtags"`
 	Symbols      []interface{} `json:"symbols"`
-	UserMentions []userMention `json:"user_mentions"`
+	UserMentions []interface{} `json:"user_mentions"`
 }
 
 type gterror struct {
@@ -41,7 +41,3 @@ type startEnd struct {
 type ErrorResponse struct {
 	Errors []gterror `json:"errors"`
 }
-
-type GOTOptions = map[string][]string
-
-type GOTPayload = map[string]string

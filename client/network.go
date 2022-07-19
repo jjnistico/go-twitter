@@ -34,7 +34,7 @@ func get[T responseData](endpoint string, opt interface{}) (T, []gterror) {
 }
 
 // POST request to twitter api
-func post[T responseData](endpoint string, payload GOTPayload) (T, []gterror) {
+func post[T responseData](endpoint string, payload interface{}) (T, []gterror) {
 	return apiRequest[T](endpoint, http.MethodPost, "", payload)
 }
 
@@ -50,7 +50,7 @@ func apiRequest[T responseData](
 	endpoint string,
 	method string,
 	queryString string,
-	payload GOTPayload,
+	payload interface{},
 ) (T, []gterror) {
 	// include buffer for post requests, nil otherwise (breaks if you pass nil *bytes.Buffer to NewRequest)
 	var request *gtRequest

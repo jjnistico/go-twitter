@@ -9,17 +9,17 @@ type Tweets struct {
 //     `expansions` []string - array of expansions (see link for available expansions)
 //     `media.fields` []string - array of media fields to include. Requires `attachments.media_keys` expansion
 //     `place.fields` []string - array of place fields to include. Requires `geo.place_id` expansion
-//     `poll.fields`  []string - array of poll fields to include. Requires attachment.poll_ids` expansion
+//     `poll.fields`  []string - array of poll fields to include. Requires `attachment.poll_ids` expansion
 //     `tweet.fields` []string - array of tweet fields to include.
 //     `user.fields`  []string - array of user fields to include. Requires certain expansions (see link)
 //
-// func (*Tweets) Get(ids []string, options types.GOTOptions) ([]types.TweetData, []types.Error) {
-// 	response, errors := network.Get[types.TweetsResponse](tweetsEndpoint, options, nil)
-// 	if errors != nil {
-// 		return []types.TweetData{}, errors
-// 	}
-// 	return response.Data, response.Errors
-// }
+func (*Tweets) Get(options GetTweetsOptions) ([]tweetData, []gterror) {
+	response, errors := get[tweetsResponse](tweetsEndpoint, options)
+	if errors != nil {
+		return []tweetData{}, errors
+	}
+	return response.Data, response.Errors
+}
 
 // https://developer.twitter.com/en/docs/twitter-api/tweets/manage-tweets/api-reference/post-tweets
 // Payload parameters:
@@ -31,7 +31,7 @@ type Tweets struct {
 //    `media.tagged_user_ids` []string - a list of user ids being tagged in the Tweet with media
 //    `poll.duration_minutes` int - Duration of the poll in minutes for a Tweet with a poll
 //
-func (*Tweets) Create(payload GOTPayload) (createTweetPayload, []gterror) {
+func (*Tweets) Create(payload CreateTweetPayload) (createTweetPayload, []gterror) {
 	response, errors := post[createTweetResponse](tweetsEndpoint, payload)
 	if errors != nil {
 		return createTweetPayload{}, errors
@@ -56,17 +56,9 @@ type attachments struct {
 	PollIds   []string `json:"poll_ids"`
 }
 
-type referencedTweetEnum = string
-
-const (
-	retweeted referencedTweetEnum = "retweeted"
-	quoted    referencedTweetEnum = "quoted"
-	repliedTo referencedTweetEnum = "replied_to"
-)
-
 type referencedTweets struct {
-	Type referencedTweetEnum `json:"type"`
-	Id   string              `json:"id"`
+	Type string `json:"type"`
+	Id   string `json:"id"`
 }
 
 type reply struct {
@@ -74,7 +66,7 @@ type reply struct {
 	InReplyToTweetId    string   `json:"in_reply_to_tweet_id"`
 }
 
-type CreateTweet struct {
+type CreateTweetPayload struct {
 	DirectMessageDeepLink string `json:"direct_message_deep_link"`
 	ForSuperFollowersOnly string `json:"for_super_followers_only"`
 	GeoLocation           geo    `json:"geo"`
@@ -130,4 +122,14 @@ type tweetData struct {
 type tweetsResponse struct {
 	Data   []tweetData `json:"data"`
 	Errors []gterror   `json:"errors"`
+}
+
+type GetTweetsOptions struct {
+	Ids         []string `url:"ids,comma"` // required
+	Expansions  []string `url:"expansions,omitempty,comma"`
+	MediaFields []string `url:"media.fields,omitempty,comma"`
+	PlaceFields []string `url:"place.fields,omitempty,comma"`
+	PollFields  []string `url:"poll.fields,omitempty,comma"`
+	TweetFields []string `url:"tweet.fields,omitempty,comma"`
+	UserFields  []string `url:"user.fields,omitempty,comma"`
 }
