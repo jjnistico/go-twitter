@@ -32,7 +32,6 @@ func newRequest(
 	httpMethod string,
 	payload io.Reader,
 ) *gtRequest {
-	fmt.Println(queryString)
 	req, err := http.NewRequest(httpMethod, endpoint+"?"+queryString, payload)
 
 	if err != nil {
@@ -65,7 +64,7 @@ func (r *gtRequest) Execute() (data interface{}, errors []gterror) {
 
 	// valid range 200-299
 	if resp.StatusCode < http.StatusOK || resp.StatusCode >= http.StatusMultipleChoices {
-		r.addError(resp.Status, "twitter api response status", fmt.Sprint(resp.StatusCode), "query")
+		r.addError(resp.Status, "twitter api response", fmt.Sprint(resp.StatusCode), "query")
 		return nil, r.Errors()
 	}
 
