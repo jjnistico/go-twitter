@@ -1,6 +1,9 @@
 package gotwit
 
-import "fmt"
+import (
+	"fmt"
+	"gotwitter/internal/network"
+)
 
 type Users struct{}
 
@@ -12,9 +15,9 @@ type Users struct{}
 //     `user.fields`  []string - array of user fields to include.
 //
 func (*Users) Get(options GetUsersOptions) usersResponse {
-	response, errors := get[usersResponse](usersEndpoint, options)
-	if errors != nil {
-		fmt.Printf("%+v\n", errors)
+	response, err := network.Get[usersResponse](usersEndpoint, options)
+	if err != nil {
+		fmt.Println(err.Error())
 	}
 	return response
 }
@@ -27,9 +30,9 @@ func (*Users) Get(options GetUsersOptions) usersResponse {
 //     `user.fields`  []string - array of user fields to include.
 //
 func (*Users) GetByUsername(username string, options GetUserByUsernameOptions) userResponse {
-	response, errors := get[userResponse](userByUsernameEndpoint(username), options)
-	if errors != nil {
-		fmt.Printf("%+v\n", errors)
+	response, err := network.Get[userResponse](userByUsernameEndpoint(username), options)
+	if err != nil {
+		fmt.Println(err.Error())
 	}
 	return response
 }

@@ -1,12 +1,14 @@
 package gotwit
 
+import "gotwitter/internal/auth"
+
 type client struct {
 	Tweets *Tweets
 	Users  *Users
 }
 
 func NewClient(apiKey string, apiSecret string, oauthToken string, oauthTokenSecret string) *client {
-	initCredentials(apiKey, apiSecret, oauthToken, oauthTokenSecret)
+	auth.Init(apiKey, apiSecret, oauthToken, oauthTokenSecret)
 	client := client{}
 	return &client
 }

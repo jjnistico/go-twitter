@@ -1,4 +1,4 @@
-package gotwit
+package auth
 
 import (
 	"crypto/hmac"

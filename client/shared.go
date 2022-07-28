@@ -37,7 +37,3 @@ type startEnd struct {
 	Start int `json:"start"`
 	End   int `json:"end"`
 }
-
-type ErrorResponse struct {
-	Errors []gterror `json:"errors"`
-}

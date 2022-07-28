@@ -1,5 +1,10 @@
 package gotwit
 
+import (
+	"fmt"
+	"gotwitter/internal/network"
+)
+
 type Tweets struct {
 }
 
@@ -13,12 +18,12 @@ type Tweets struct {
 //     `tweet.fields` []string - array of tweet fields to include.
 //     `user.fields`  []string - array of user fields to include. Requires certain expansions (see link)
 //
-func (*Tweets) Get(options GetTweetsOptions) ([]tweetData, []gterror) {
-	response, errors := get[tweetsResponse](tweetsEndpoint, options)
-	if errors != nil {
-		return []tweetData{}, errors
+func (*Tweets) Get(options GetTweetsOptions) tweetsResponse {
+	response, err := network.Get[tweetsResponse](tweetsEndpoint, options)
+	if err != nil {
+		fmt.Println(err.Error())
 	}
-	return response.Data, response.Errors
+	return response
 }
 
 // https://developer.twitter.com/en/docs/twitter-api/tweets/manage-tweets/api-reference/post-tweets
@@ -31,24 +36,24 @@ func (*Tweets) Get(options GetTweetsOptions) ([]tweetData, []gterror) {
 //    `media.tagged_user_ids` []string - a list of user ids being tagged in the Tweet with media
 //    `poll.duration_minutes` int - Duration of the poll in minutes for a Tweet with a poll
 //
-func (*Tweets) Create(payload CreateTweetPayload) (createTweetPayload, []gterror) {
-	response, errors := post[createTweetResponse](tweetsEndpoint, payload)
-	if errors != nil {
-		return createTweetPayload{}, errors
+func (*Tweets) Create(payload CreateTweetPayload) createTweetResponse {
+	response, err := network.Post[createTweetResponse](tweetsEndpoint, payload)
+	if err != nil {
+		fmt.Println(err.Error())
 	}
-	return response.Data, response.Errors
+	return response
 }
 
 // https://developer.twitter.com/en/docs/twitter-api/tweets/manage-tweets/api-reference/delete-tweets-id
 // Parameters:
 //    `id` string - the id of the tweet to be deleted
 //
-func (*Tweets) Delete(tweetId string) (deleteTweetPayload, []gterror) {
-	response, errors := delete[deleteTweetResponse](tweetByIdEndpoint(tweetId))
-	if errors != nil {
-		return deleteTweetPayload{}, errors
+func (*Tweets) Delete(tweetId string) deleteTweetResponse {
+	response, err := network.Delete[deleteTweetResponse](tweetByIdEndpoint(tweetId))
+	if err != nil {
+		fmt.Println(err.Error())
 	}
-	return response.Data, response.Errors
+	return response
 }
 
 type attachments struct {
