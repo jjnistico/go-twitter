@@ -8,12 +8,11 @@ import (
 	"net/http"
 )
 
-func Execute(
-	endpoint string,
-	queryString string,
-	method string,
-	payload io.Reader,
-) (interface{}, error) {
+type gtRequest struct {
+	req *http.Request
+}
+
+func newRequest(endpoint string, queryString string, method string, payload io.Reader) *gtRequest {
 	var (
 		req *http.Request
 		err error
@@ -21,6 +20,7 @@ func Execute(
 
 	if method == http.MethodPost {
 		req, err = http.NewRequest(method, endpoint+"?"+queryString, payload)
+		req.Header.Add("content-type", "application/json")
 	} else {
 		req, err = http.NewRequest(method, endpoint+"?"+queryString, nil)
 	}
@@ -28,20 +28,21 @@ func Execute(
 	if err != nil {
 		panic(fmt.Sprintf("error generating request: %s", err.Error()))
 	}
+	r := gtRequest{req}
+	return &r
+}
 
-	if method == http.MethodPost {
-		req.Header.Add("content-type", "application/json")
-	}
+func (r *gtRequest) Authorize() *gtRequest {
+	reqUrl := r.req.URL.Scheme + "://" + r.req.URL.Host + r.req.URL.Path
+	authHeader := auth.BuildAuthorizationHeader(r.req.Method, reqUrl, r.req.URL.Query())
+	r.req.Header.Add("Authorization", authHeader)
+	return r
+}
 
-	reqUrl := req.URL.Scheme + "://" + req.URL.Host + req.URL.Path
-
-	authHeader := auth.BuildAuthorizationHeader(req.Method, reqUrl, req.URL.Query())
-
-	req.Header.Add("Authorization", authHeader)
-
+func (r *gtRequest) Execute() (any, error) {
 	client := getHttpClient()
 
-	resp, err := client.Do(req)
+	resp, err := client.Do(r.req)
 
 	if err != nil {
 		panic("query execution error")

@@ -3,10 +3,10 @@ package gotwit
 import (
 	"fmt"
 	"gotwitter/internal/network"
+	"net/url"
 )
 
-type Tweets struct {
-}
+type Tweets struct{}
 
 // https://developer.twitter.com/en/docs/twitter-api/tweets/lookup/api-reference/get-tweets
 //   Parameters:
@@ -18,8 +18,13 @@ type Tweets struct {
 //     `tweet.fields` []string - array of tweet fields to include.
 //     `user.fields`  []string - array of user fields to include. Requires certain expansions (see link)
 //
-func (*Tweets) Get(options GetTweetsOptions) tweetsResponse {
-	response, err := network.Get[tweetsResponse](tweetsEndpoint, options)
+func (*Tweets) Get(options ...getOption) tweetsResponse {
+	urlVals := url.Values{}
+	for _, opt := range options {
+		key, val := opt()
+		urlVals.Set(key, val)
+	}
+	response, err := network.Get[tweetsResponse](tweetsEndpoint, urlVals)
 	if err != nil {
 		fmt.Println(err.Error())
 	}
@@ -127,14 +132,4 @@ type tweetData struct {
 type tweetsResponse struct {
 	Data   []tweetData `json:"data"`
 	Errors []gterror   `json:"errors"`
-}
-
-type GetTweetsOptions struct {
-	Ids         []string `url:"ids,comma"` // required
-	Expansions  []string `url:"expansions,omitempty,comma"`
-	MediaFields []string `url:"media.fields,omitempty,comma"`
-	PlaceFields []string `url:"place.fields,omitempty,comma"`
-	PollFields  []string `url:"poll.fields,omitempty,comma"`
-	TweetFields []string `url:"tweet.fields,omitempty,comma"`
-	UserFields  []string `url:"user.fields,omitempty,comma"`
 }

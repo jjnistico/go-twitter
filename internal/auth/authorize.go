@@ -123,7 +123,7 @@ func BuildAuthorizationHeader(method string, url string, queryParams url.Values)
 			if v == "" {
 				continue
 			}
-			builder.WriteString(fmt.Sprintf("%s=\"%s\"", percentEncode(k), percentEncode(v)))
+			fmt.Fprintf(&builder, "%s=\"%s\"", percentEncode(k), percentEncode(v))
 			if idx < len(authHeaderData)-1 {
 				builder.WriteString(", ")
 			}

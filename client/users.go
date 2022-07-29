@@ -3,6 +3,7 @@ package gotwit
 import (
 	"fmt"
 	"gotwitter/internal/network"
+	"net/url"
 )
 
 type Users struct{}
@@ -14,8 +15,13 @@ type Users struct{}
 //     `tweet.fields` []string - array of tweet fields to include.
 //     `user.fields`  []string - array of user fields to include.
 //
-func (*Users) Get(options GetUsersOptions) usersResponse {
-	response, err := network.Get[usersResponse](usersEndpoint, options)
+func (*Users) Get(options ...getOption) usersResponse {
+	urlVals := url.Values{}
+	for _, opt := range options {
+		key, val := opt()
+		urlVals.Set(key, val)
+	}
+	response, err := network.Get[usersResponse](usersEndpoint, urlVals)
 	if err != nil {
 		fmt.Println(err.Error())
 	}
@@ -29,8 +35,13 @@ func (*Users) Get(options GetUsersOptions) usersResponse {
 //     `tweet.fields` []string - array of tweet fields to include.
 //     `user.fields`  []string - array of user fields to include.
 //
-func (*Users) GetByUsername(username string, options GetUserByUsernameOptions) userResponse {
-	response, err := network.Get[userResponse](userByUsernameEndpoint(username), options)
+func (*Users) GetByUsername(username string, options ...getOption) userResponse {
+	urlVals := url.Values{}
+	for _, opt := range options {
+		key, val := opt()
+		urlVals.Set(key, val)
+	}
+	response, err := network.Get[userResponse](userByUsernameEndpoint(username), urlVals)
 	if err != nil {
 		fmt.Println(err.Error())
 	}

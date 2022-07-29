@@ -3,6 +3,8 @@ package auth
 import (
 	"fmt"
 	"net/http"
+	"net/url"
+	"strings"
 	"testing"
 	"time"
 )
@@ -47,5 +49,53 @@ func TestGetRequestSignatureDelete(t *testing.T) {
 
 	if testSig != expected {
 		t.Errorf("got: %s, expected: %s", testSig, expected)
+	}
+}
+
+func TestBuildAuthorizationHeader(t *testing.T) {
+	authHeader := BuildAuthorizationHeader(http.MethodGet, "www.example.com", url.Values{})
+
+	if authHeader[:5] != "OAuth" {
+		t.Error("Missing `OAuth` prefix")
+	}
+
+	if !strings.Contains(authHeader, `oauth_consumer_key="apiKey"`) {
+		t.Error("missing `oauth_consumer_key` in auth header")
+	}
+
+	if !strings.Contains(authHeader, "oauth_nonce") {
+		t.Error("missing `oauth_nonce` in auth header")
+	}
+
+	if !strings.Contains(authHeader, "oauth_signature") {
+		t.Error("missing `oauth_signature` in auth header")
+	}
+
+	if !strings.Contains(authHeader, `oauth_signature_method="HMAC-SHA1"`) {
+		t.Error("missing `oauth_signature_method` in auth header")
+	}
+
+	if !strings.Contains(authHeader, "oauth_timestamp") {
+		t.Error("missing `oauth_timestamp` in auth header")
+	}
+
+	if !strings.Contains(authHeader, `oauth_token="oauthToken"`) {
+		t.Error("missing `oauth_token` in auth header")
+	}
+
+	if !strings.Contains(authHeader, `oauth_version="1.0"`) {
+		t.Error("missing `oauth_version` in auth header")
+	}
+}
+
+func TestBuilderAuthorizationHeaderWithParams(t *testing.T) {
+	queryParams := url.Values{}
+	queryParams.Add("key1", "val1")
+	queryParams.Add("key2", "val2")
+
+	authHeader := BuildAuthorizationHeader(http.MethodGet, "www.example.com", queryParams)
+
+	if authHeader != "" {
+		t.Error(authHeader)
 	}
 }

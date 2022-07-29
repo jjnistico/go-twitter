@@ -1,14 +1,18 @@
 package gotwit
 
+import (
+	"strings"
+)
+
 type coordinates struct {
 	Type        string `json:"type"`
 	Coordinates [2]int `json:"coordinates"`
 }
 
 type entitiesT struct {
-	Hashtags     []interface{} `json:"hashtags"`
-	Symbols      []interface{} `json:"symbols"`
-	UserMentions []interface{} `json:"user_mentions"`
+	Hashtags     []any `json:"hashtags"`
+	Symbols      []any `json:"symbols"`
+	UserMentions []any `json:"user_mentions"`
 }
 
 type gterror struct {
@@ -36,4 +40,12 @@ type poll struct {
 type startEnd struct {
 	Start int `json:"start"`
 	End   int `json:"end"`
+}
+
+type getOption func() (key string, val string)
+
+func With(key string, vals ...string) getOption {
+	return func() (string, string) {
+		return key, strings.Join(vals, ",")
+	}
 }

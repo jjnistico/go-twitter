@@ -2,9 +2,10 @@ package main
 
 import (
 	"fmt"
-	gt "gotwitter/client"
 	"log"
 	"os"
+
+	g "gotwitter/client"
 
 	"github.com/joho/godotenv"
 )
@@ -20,17 +21,16 @@ func main() {
 	oauthToken := os.Getenv("TWITTER_OAUTH_TOKEN")
 	oauthTokenSecret := os.Getenv("TWITTER_OAUTH_TOKEN_SECRET")
 
-	got := gt.NewClient(apiKey, apiSecret, oauthToken, oauthTokenSecret)
+	got := g.NewClient(apiKey, apiSecret, oauthToken, oauthTokenSecret)
 
-	userResponse := got.Users.GetByUsername("jack", gt.GetUserByUsernameOptions{})
+	userResponse := got.Users.GetByUsername("jack")
 
 	fmt.Println("=====Users=====")
-	fmt.Printf("%+v\n", userResponse)
+	fmt.Printf("%+v\n", userResponse.Data)
 
-	tweetResponse := got.Tweets.Get(gt.GetTweetsOptions{
-		Ids:        []string{"32", "324234355", "23498585"},
-		Expansions: []string{"attachments.poll_ids", "author_id", "entities.mentions.username"},
-	})
+	tweetResponse := got.Tweets.Get(
+		g.With("ids", "32", "1123346", "908934727234"),
+		g.With("expansions", "attachments.poll_ids", "author_id", "entities.mentions.username"))
 
 	fmt.Println("=====Tweets=====")
 	fmt.Printf("%+v\n", tweetResponse.Data)
