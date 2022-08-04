@@ -56,6 +56,15 @@ func (*Tweets) Delete(tweetId string) deleteTweetResponse {
 	return response
 }
 
+func (*Tweets) Count(options ...getOption) tweetsCountsResponse {
+	urlVals := buildQueryParamsFromOptions(options)
+	response, err := network.Get[tweetsCountsResponse](tweetsCountsEndpoint, urlVals)
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+	return response
+}
+
 type attachments struct {
 	MediaKeys []string `json:"media_keys"`
 	PollIds   []string `json:"poll_ids"`
@@ -127,4 +136,18 @@ type tweetData struct {
 type tweetsResponse struct {
 	Data   []tweetData `json:"data"`
 	Errors []gterror   `json:"errors"`
+}
+
+type tweetsCounts struct {
+	Start      string `json:"start"`
+	End        string `json:"end"`
+	TweetCount int    `json:"tweet_count"`
+}
+
+type tweetsCountsResponse struct {
+	Data []tweetsCounts `json:"data"`
+	Meta struct {
+		TotalTweetCount int `json:"total_tweet_count"`
+	} `json:"meta"`
+	Errors []gterror `json:"errors"`
 }

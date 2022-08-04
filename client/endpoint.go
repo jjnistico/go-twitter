@@ -9,6 +9,7 @@ const (
 	oauthAuthorizeEndpoint    string = "https://api.twitter.com/oauth/authorize"
 	oauthAuthenticateEndpoint string = "https://api.twitter.com/oauth/authenticate"
 	oauthAccessTokenEndpoint  string = "https://api.twitter.com/oauth/access_token"
+	tweetsCountsEndpoint      string = tweetsEndpoint + "/counts/recent"
 )
 
 func timelineTweetsEndpoint(user_id string) string {

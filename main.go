@@ -28,10 +28,11 @@ func main() {
 	fmt.Println("=====Users=====")
 	fmt.Printf("%+v\n", userResponse.Data)
 
-	tweetResponse := got.Tweets.Get(
-		g.With("ids", "32", "1123346", "908934727234"),
-		g.With("expansions", "attachments.poll_ids", "author_id", "entities.mentions.username"))
+	// tweetResponse := got.Tweets.Get(
+	// 	g.With("ids", "32", "1123346", "908934727234"),
+	// 	g.With("expansions", "attachments.poll_ids", "author_id", "entities.mentions.username"))
 
+	tweetResponse := got.Tweets.Count(g.With("query", "ufo"))
 	fmt.Println("=====Tweets=====")
 	fmt.Printf("%+v\n", tweetResponse.Data)
 	fmt.Printf("%+v\n", tweetResponse.Errors)
