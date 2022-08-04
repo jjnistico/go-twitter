@@ -32,15 +32,13 @@ func newRequest(endpoint string, queryString string, method string, payload io.R
 	return &r
 }
 
-func (r *gtRequest) Authorize() *gtRequest {
-	reqUrl := r.req.URL.Scheme + "://" + r.req.URL.Host + r.req.URL.Path
-	authHeader := auth.BuildAuthorizationHeader(r.req.Method, reqUrl, r.req.URL.Query())
-	r.req.Header.Add("Authorization", authHeader)
+func (r *gtRequest) authorize() *gtRequest {
+	auth.Oauth2Authorize(r.req)
 	return r
 }
 
-func (r *gtRequest) Execute() (any, error) {
-	client := getHttpClient()
+func (r *gtRequest) execute() (any, error) {
+	client := GetHttpClient()
 
 	resp, err := client.Do(r.req)
 

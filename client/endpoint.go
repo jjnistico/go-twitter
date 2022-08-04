@@ -3,13 +3,9 @@ package gotwit
 import "fmt"
 
 const (
-	tweetsEndpoint            string = "https://api.twitter.com/2/tweets"
-	usersEndpoint             string = "https://api.twitter.com/2/users"
-	oauthRequestTokenEndpoint string = "https://api.twitter.com/oauth/request_token"
-	oauthAuthorizeEndpoint    string = "https://api.twitter.com/oauth/authorize"
-	oauthAuthenticateEndpoint string = "https://api.twitter.com/oauth/authenticate"
-	oauthAccessTokenEndpoint  string = "https://api.twitter.com/oauth/access_token"
-	tweetsCountsEndpoint      string = tweetsEndpoint + "/counts/recent"
+	tweetsEndpoint       string = "https://api.twitter.com/2/tweets"
+	usersEndpoint        string = "https://api.twitter.com/2/users"
+	tweetsCountsEndpoint string = tweetsEndpoint + "/counts/recent"
 )
 
 func timelineTweetsEndpoint(user_id string) string {

@@ -36,7 +36,7 @@ func apiRequest[T any](
 		panic(err.Error())
 	}
 
-	data, err := newRequest(endpoint, queryString, method, payloadBuf).Authorize().Execute()
+	data, err := newRequest(endpoint, queryString, method, payloadBuf).authorize().execute()
 
 	// unmarshal byte array to a GO type if no errors from execution of query, else return errors and nil data
 	var structuredData T

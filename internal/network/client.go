@@ -9,7 +9,7 @@ var lock = &sync.Mutex{}
 
 var clientInstance *http.Client
 
-func getHttpClient() *http.Client {
+func GetHttpClient() *http.Client {
 	if clientInstance == nil {
 		lock.Lock()
 		defer lock.Unlock()
