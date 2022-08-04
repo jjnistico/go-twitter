@@ -5,26 +5,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/url"
-	"sync"
 )
-
-var lock = &sync.Mutex{}
-
-var clientInstance *http.Client
-
-func getHttpClient() *http.Client {
-	if clientInstance == nil {
-		lock.Lock()
-		defer lock.Unlock()
-
-		// prevent concurrency issues
-		if clientInstance == nil {
-			clientInstance = &http.Client{}
-		}
-	}
-
-	return clientInstance
-}
 
 // GET request to twitter api
 func Get[T any](endpoint string, options url.Values) (T, error) {

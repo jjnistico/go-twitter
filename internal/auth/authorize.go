@@ -5,7 +5,6 @@ import (
 	"net/url"
 	"sort"
 	"strings"
-	"time"
 )
 
 // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // //
@@ -71,11 +70,15 @@ func getRequestSignature(signatureParams []map[string]string, method string, bas
 }
 
 // see https://developer.twitter.com/en/docs/authentication/oauth-1-0a for oauth 1.0 auth flow used below
-func BuildAuthorizationHeader(method string, url string, queryParams url.Values) string {
+func BuildAuthorizationHeader(
+	method string,
+	url string,
+	queryParams url.Values,
+) string {
 	oauthConsumerKey := credentials.apiKey
 	oauthToken := credentials.oauthToken
-	nonce := generateNonce(14)
-	timestamp := time.Now().Unix()
+	timestamp := unixTime()
+	nonce := getNonce(42)
 
 	signaturePayload := []map[string]string{
 		{"oauth_consumer_key": oauthConsumerKey},

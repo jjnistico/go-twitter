@@ -11,9 +11,7 @@ func TestPercentEncode(t *testing.T) {
 
 	encodedStr := percentEncode(testStr)
 
-	if encodedStr != expected {
-		t.Errorf("\nexpected: %s, got: %s\n", expected, encodedStr)
-	}
+	compareResults(t, encodedStr, expected)
 }
 
 func TestEmptyPercentEncode(t *testing.T) {
@@ -22,16 +20,14 @@ func TestEmptyPercentEncode(t *testing.T) {
 
 	encodedStr := percentEncode(testStr)
 
-	if encodedStr != expected {
-		t.Errorf("\nexpected: %s, got: %s\n", expected, encodedStr)
-	}
+	compareResults(t, encodedStr, expected)
 }
 
 func TestGenerateNonce(t *testing.T) {
 	nonceEmpty := generateNonce(0)
 
 	if len(nonceEmpty) != 0 {
-		t.Errorf("expected nonce of length 0, got length of %d", len(nonce))
+		t.Errorf("expected nonce of length 0, got length of %d", len(nonceEmpty))
 	}
 
 	nonce42 := generateNonce(42)
@@ -44,15 +40,5 @@ func TestGenerateNonce(t *testing.T) {
 
 	if !r.MatchString(nonce42) {
 		t.Errorf("nonce %s is not a valid nonce", nonce42)
-	}
-
-	nonce24 := generateNonce(24)
-
-	if len(nonce24) != 24 {
-		t.Errorf("expected nonce of length 24, got length of %d", len(nonce24))
-	}
-
-	if !r.MatchString(nonce24) {
-		t.Errorf("nonce %s is not a valid nonce", nonce24)
 	}
 }

@@ -3,7 +3,6 @@ package gotwit
 import (
 	"fmt"
 	"gotwitter/internal/network"
-	"net/url"
 )
 
 type Tweets struct{}
@@ -19,11 +18,7 @@ type Tweets struct{}
 //     `user.fields`  []string - array of user fields to include. Requires certain expansions (see link)
 //
 func (*Tweets) Get(options ...getOption) tweetsResponse {
-	urlVals := url.Values{}
-	for _, opt := range options {
-		key, val := opt()
-		urlVals.Set(key, val)
-	}
+	urlVals := buildQueryParamsFromOptions(options)
 	response, err := network.Get[tweetsResponse](tweetsEndpoint, urlVals)
 	if err != nil {
 		fmt.Println(err.Error())
