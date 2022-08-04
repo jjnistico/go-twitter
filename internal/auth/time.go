@@ -16,7 +16,6 @@ func resetClockImpl() {
 	}
 }
 
-// function to return current time stamp in UTC
 func unixTime() int64 {
 	return unixFunc()
 }
