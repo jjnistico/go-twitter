@@ -3,6 +3,7 @@ package auth
 import (
 	"crypto/hmac"
 	"crypto/sha1"
+	"crypto/sha256"
 	b64 "encoding/base64"
 	"fmt"
 	"strings"
@@ -44,4 +45,13 @@ func hmacHash(data string, key string) string {
 	mac.Write([]byte(data))
 	hash := b64.StdEncoding.EncodeToString(mac.Sum(nil))
 	return hash
+}
+
+func generateCodeVerifier() (ver string, chal string) {
+	rand := generateNonce(64)
+	verifier := b64.RawURLEncoding.EncodeToString([]byte(rand))
+	sha := sha256.New()
+	sha.Write([]byte(verifier))
+	challenge := b64.RawURLEncoding.EncodeToString(sha.Sum(nil))
+	return verifier, challenge
 }

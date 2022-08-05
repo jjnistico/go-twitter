@@ -33,7 +33,7 @@ func newRequest(endpoint string, queryString string, method string, payload io.R
 }
 
 func (r *gtRequest) authorize() *gtRequest {
-	auth.Oauth2Authorize(r.req)
+	auth.OAuth2Authorize(r.req)
 	return r
 }
 

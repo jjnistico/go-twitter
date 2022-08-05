@@ -1,17 +1,40 @@
 package auth
 
+import "sync"
+
 type config struct {
 	apiKey           string
 	apiSecret        string
 	oauthToken       string
 	oauthTokenSecret string
-	accessToken      string
+	clientId         string
+	accessToken      token
 }
 
-// testing default
-var credentials *config = &config{"apiKey", "apiSecret", "oauthToken", "oauthTokenSecret", ""}
+var credentials *config = &config{}
 
-func Init(apiKey string, apiSecret string, oauthToken string, oauthTokenSecret string) {
+var mx sync.RWMutex
+
+// before each test using credentials
+func resetCredentials() {
+	credentials = &config{}
+}
+
+func InitOAuth2(apiKey string, apiSecret string, clientId string) {
+	mx.Lock()
+	defer mx.Unlock()
+
+	credentials = &config{
+		apiKey:    apiKey,
+		apiSecret: apiSecret,
+		clientId:  clientId,
+	}
+}
+
+func InitOAuth1(apiKey string, apiSecret string, oauthToken string, oauthTokenSecret string) {
+	mx.Lock()
+	defer mx.Unlock()
+
 	credentials = &config{
 		apiKey:           apiKey,
 		apiSecret:        apiSecret,

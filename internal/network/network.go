@@ -7,17 +7,14 @@ import (
 	"net/url"
 )
 
-// GET request to twitter api
 func Get[T any](endpoint string, options url.Values) (T, error) {
 	return apiRequest[T](endpoint, http.MethodGet, options.Encode(), nil)
 }
 
-// POST request to twitter api
 func Post[T any](endpoint string, payload any) (T, error) {
 	return apiRequest[T](endpoint, http.MethodPost, "", payload)
 }
 
-// DELETE request to twitter api
 func Delete[T any](endpoint string) (T, error) {
 	return apiRequest[T](endpoint, http.MethodDelete, "", nil)
 }

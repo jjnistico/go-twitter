@@ -6,7 +6,6 @@ import (
 )
 
 type getOption func() (key string, val string)
-type postOption func()
 
 func With(key string, vals ...string) getOption {
 	return func() (string, string) {

@@ -22,7 +22,8 @@ var (
 )
 
 func TestGetRequestSignatureGet(t *testing.T) {
-	const expected = "Jmh6B+ICOqA8VLA97aDQ8phhwb4="
+	resetCredentials()
+	const expected = "KNWMksJ3Rn37Ffy6xVT1f//R15w="
 
 	testSig := getRequestSignature(signaturePayload, http.MethodGet, "www.example.com")
 
@@ -30,7 +31,8 @@ func TestGetRequestSignatureGet(t *testing.T) {
 }
 
 func TestGetRequestSignaturePost(t *testing.T) {
-	const expected = "5IGS6mXEFHqkNT++zrO+wKiahFM="
+	resetCredentials()
+	const expected = "yaKt59q6rV7Fjar2zLdDtzD1lV8="
 
 	testSig := getRequestSignature(signaturePayload, http.MethodPost, "www.example.com")
 
@@ -38,7 +40,8 @@ func TestGetRequestSignaturePost(t *testing.T) {
 }
 
 func TestGetRequestSignatureDelete(t *testing.T) {
-	const expected = "p6dPMf0E14nlV7KCOQlvBJeUj44="
+	resetCredentials()
+	const expected = "rOx34j9xOvR+4i0f0EDwxNm0umg="
 
 	testSig := getRequestSignature(signaturePayload, http.MethodDelete, "www.example.com")
 
@@ -46,7 +49,8 @@ func TestGetRequestSignatureDelete(t *testing.T) {
 }
 
 func TestBuildAuthorizationHeader(t *testing.T) {
-	const expected = `OAuth oauth_consumer_key="apiKey", oauth_nonce="HphbgSiKgVIXyAlvLIpAOsRVBpLmPsnskdXtEKzvjx", oauth_signature="Jmh6B%2BICOqA8VLA97aDQ8phhwb4%3D", oauth_signature_method="HMAC-SHA1", oauth_timestamp="1654041600", oauth_token="oauthToken", oauth_version="1.0"`
+	resetCredentials()
+	const expected = `OAuth oauth_nonce="HphbgSiKgVIXyAlvLIpAOsRVBpLmPsnskdXtEKzvjx", oauth_signature="KNWMksJ3Rn37Ffy6xVT1f%2F%2FR15w%3D", oauth_signature_method="HMAC-SHA1", oauth_timestamp="1654041600", oauth_version="1.0"`
 	unixFunc = func() int64 {
 		return timestamp
 	}
@@ -58,13 +62,14 @@ func TestBuildAuthorizationHeader(t *testing.T) {
 	defer resetClockImpl()
 	defer resetNonceImpl()
 
-	authHeader := BuildAuthorizationHeader(http.MethodGet, "www.example.com", url.Values{})
+	authHeader := buildAuthorizationHeader(http.MethodGet, "www.example.com", url.Values{})
 
 	compareResults(t, authHeader, expected)
 }
 
 func TestBuilderAuthorizationHeaderWithParams(t *testing.T) {
-	const expected = `OAuth oauth_consumer_key="apiKey", oauth_nonce="HphbgSiKgVIXyAlvLIpAOsRVBpLmPsnskdXtEKzvjx", oauth_signature="4FlfcqvAMEm43N410Dee4yecDQQ%3D", oauth_signature_method="HMAC-SHA1", oauth_timestamp="1654041600", oauth_token="oauthToken", oauth_version="1.0"`
+	resetCredentials()
+	const expected = `OAuth oauth_nonce="HphbgSiKgVIXyAlvLIpAOsRVBpLmPsnskdXtEKzvjx", oauth_signature="MNC1IJ2yMRzR5LKvMMg0MGa9q18%3D", oauth_signature_method="HMAC-SHA1", oauth_timestamp="1654041600", oauth_version="1.0"`
 	queryParams := url.Values{}
 	queryParams.Add("key1", "val1")
 	queryParams.Add("key2", "val2")
@@ -80,7 +85,7 @@ func TestBuilderAuthorizationHeaderWithParams(t *testing.T) {
 	defer resetClockImpl()
 	defer resetNonceImpl()
 
-	authHeader := BuildAuthorizationHeader(http.MethodGet, "www.example.com", queryParams)
+	authHeader := buildAuthorizationHeader(http.MethodGet, "www.example.com", queryParams)
 
 	compareResults(t, authHeader, expected)
 }

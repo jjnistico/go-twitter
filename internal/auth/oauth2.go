@@ -11,6 +11,7 @@ import (
 	"net/url"
 	"os"
 	"strings"
+	"sync"
 
 	browser "github.com/pkg/browser"
 )
@@ -24,17 +25,21 @@ func basicAuthorizationHeader() string {
 	))
 }
 
-func authorize() string {
+// authorize is the first step in the oauth 2.0 flow. An http server is spun up to handle the callback
+// from twitter and capture the code used to get an access token in the next step.
+func authorize() (code string, challenge string) {
 	m := http.NewServeMux()
 	server := http.Server{Addr: ":8000", Handler: m}
 
 	cChan := make(chan string, 1)
+	oauthState := generateNonce(14)
+	verifier, codeChallenge := generateCodeVerifier()
 
 	m.HandleFunc("/callback", func(w http.ResponseWriter, r *http.Request) {
 		state := r.URL.Query().Get("state")
 
-		if state != "state" {
-			log.Fatal("auth callback failed: state != state")
+		if state != oauthState {
+			log.Fatal("auth callback failed: state != " + oauthState)
 		}
 
 		cChan <- r.URL.Query().Get("code")
@@ -46,30 +51,29 @@ func authorize() string {
 		}
 	}()
 
-	queryParams := url.Values{}
-	queryParams.Set("response_type", "code")
-	queryParams.Set("client_id", os.Getenv("TWITTER_API_CLIENT_ID"))
-	queryParams.Set("redirect_uri", "http://localhost:8000/callback")
-	queryParams.Set("scope", "users.read")
-	queryParams.Set("state", "state")
-	queryParams.Set("code_challenge", "challenge")
-	queryParams.Set("code_challenge_method", "plain")
-
-	url := "https://twitter.com/i/oauth2/authorize?" + queryParams.Encode()
+	url := "https://twitter.com/i/oauth2/authorize?" + url.Values{
+		"response_type":         {"code"},
+		"client_id":             {credentials.clientId},
+		"redirect_uri":          {"http://localhost:8000/callback"},
+		"scope":                 {"users.read tweet.read tweet.write"},
+		"state":                 {oauthState},
+		"code_challenge":        {codeChallenge},
+		"code_challenge_method": {"S256"},
+	}.Encode()
 	browser.OpenURL(url)
 
-	code := <-cChan
+	// block until code query parameter value returned
+	cCode := <-cChan
 	server.Shutdown(context.Background())
-	return code
+	return cCode, verifier
 }
 
-func accessToken(code string) token {
+func accessToken(code string, verifier string) token {
 	form := url.Values{
-		"code":       {code},
-		"grant_type": {"authorization_code"},
-		// "client_id":     {os.Getenv("TWITTER_API_CLIENT_ID")},
+		"code":          {code},
+		"grant_type":    {"authorization_code"},
 		"redirect_uri":  {"http://localhost:8000/callback"},
-		"code_verifier": {"challenge"},
+		"code_verifier": {verifier},
 	}
 
 	req, err := http.NewRequest(
@@ -101,16 +105,25 @@ func accessToken(code string) token {
 	return tokenData
 }
 
-func Oauth2Authorize(r *http.Request) {
-	var aToken string
-	if len(credentials.accessToken) == 0 {
-		code := authorize()
-		token := accessToken(code)
-		aToken = token.AccessToken
-	} else {
-		aToken = credentials.accessToken
-	}
-	r.Header.Add("Authorization", "Bearer "+aToken)
+var m sync.Mutex
+
+func OAuth2Authorize(r *http.Request) {
+	tokenChan := make(chan string)
+
+	go func() {
+		m.Lock()
+		defer m.Unlock()
+
+		if len(credentials.accessToken.AccessToken) == 0 {
+			code, challenge := authorize()
+			token := accessToken(code, challenge)
+			credentials.accessToken = token
+		}
+
+		tokenChan <- credentials.accessToken.AccessToken
+	}()
+
+	r.Header.Add("Authorization", "Bearer "+<-tokenChan)
 }
 
 type token struct {

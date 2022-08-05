@@ -4,10 +4,8 @@ import "math/rand"
 
 type genNonce func(len int) string
 
-var nonceFunc genNonce
-
-func init() {
-	resetNonceImpl()
+var nonceFunc genNonce = func(len int) string {
+	return generateNonce(len)
 }
 
 func resetNonceImpl() {
@@ -16,7 +14,7 @@ func resetNonceImpl() {
 	}
 }
 
-func getNonce(len int) string {
+func nonce(len int) string {
 	return nonceFunc(len)
 }
 

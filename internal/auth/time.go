@@ -4,10 +4,8 @@ import "time"
 
 type tsFunc func() int64
 
-var unixFunc tsFunc
-
-func init() {
-	resetClockImpl()
+var unixFunc tsFunc = func() int64 {
+	return time.Now().Unix()
 }
 
 func resetClockImpl() {
@@ -16,6 +14,6 @@ func resetClockImpl() {
 	}
 }
 
-func unixTime() int64 {
+func unixTimestamp() int64 {
 	return unixFunc()
 }
