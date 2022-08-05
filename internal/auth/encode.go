@@ -48,7 +48,7 @@ func hmacHash(data string, key string) string {
 }
 
 func generateCodeVerifier() (ver string, chal string) {
-	rand := generateNonce(64)
+	rand := nonce(64)
 	verifier := b64.RawURLEncoding.EncodeToString([]byte(rand))
 	sha := sha256.New()
 	sha.Write([]byte(verifier))

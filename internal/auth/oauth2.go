@@ -32,7 +32,7 @@ func authorize() (code string, challenge string) {
 	server := http.Server{Addr: ":8000", Handler: m}
 
 	cChan := make(chan string, 1)
-	oauthState := generateNonce(14)
+	oauthState := nonce(14)
 	verifier, codeChallenge := generateCodeVerifier()
 
 	m.HandleFunc("/callback", func(w http.ResponseWriter, r *http.Request) {
